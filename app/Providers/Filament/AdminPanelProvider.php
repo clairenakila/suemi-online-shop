@@ -30,13 +30,11 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('suemionlineshop')
             ->favicon(asset('images/logo.png'))
-            ->brandLogo(asset('images/logo.png'))
-            ->brandLogoHeight(3)
+            ->brandLogo(asset('images/logo10.png'))
+            ->brandLogoHeight(60)
             ->login()
-            // ->colors([
-            //     'primary' => Color::#fe3298,
-            // ])
-             ->colors([
+            ->sidebarFullyCollapsibleOnDesktop()
+            ->colors([
                 'primary' => '#fe3298',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
