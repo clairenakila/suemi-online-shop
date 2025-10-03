@@ -71,6 +71,9 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('role.name')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
@@ -100,9 +103,7 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('signature')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('role.name')
-                    ->numeric()
-                    ->sortable(),
+                
             ])
             ->filters([
                 //
