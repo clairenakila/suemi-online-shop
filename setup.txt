@@ -1,0 +1,23 @@
+<VirtualHost *:80>
+    ServerAdmin webmaster@suemionlineshop.com
+    DocumentRoot "C:/Users/HP/Desktop/suemi-online-shop/public"
+    ServerName suemionlineshop.com
+    ServerAlias www.suemionlineshop.com
+
+    <Directory "C:/Users/HP/Desktop/suemi-online-shop/public">
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog "logs/suemionlineshop.com-error.log"
+    CustomLog "logs/suemionlineshop.com-access.log" common
+</VirtualHost>
+
+
+
+
+C:\Windows\System32\drivers\etc host
+127.0.0.1   suemionlineshop.com
+127.0.0.1   www.suemionlineshop.com
+127.0.0.1   localhost
