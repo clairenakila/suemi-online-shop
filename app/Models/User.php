@@ -6,11 +6,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
+
+
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -18,9 +24,18 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'role_id',
         'name',
         'email',
         'password',
+        'contact_number',
+        'sss_number',
+        'pagibig_number',
+        'philhealth_number',
+        'hourly_rate',
+        'daily_rate',
+        'signature'
+
     ];
 
     /**
@@ -44,5 +59,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+     public function countUsersByRole(string $roleName): int
+    {
+        return User::role($roleName)->count();
+    }
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 }

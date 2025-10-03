@@ -21,3 +21,20 @@ C:\Windows\System32\drivers\etc host
 127.0.0.1   suemionlineshop.com
 127.0.0.1   www.suemionlineshop.com
 127.0.0.1   localhost
+////////////////////////////////////////////////////////////////////////
+
+///for running permissions in filament shield
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
+
+//migrations
+php artisan migrate:fresh --seed
+php artisan db:seed --class=RoleSeeder
+
+//if roles not showing
+php artisan shield:generate --all
+php artisan shield:setup --fresh
+php artisan shield:publish filament
+php artisan shield:install
+php artisan shield:super-admin
+
+
