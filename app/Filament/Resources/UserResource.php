@@ -12,6 +12,11 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Enums\ActionsPosition;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+
+
+
 
 class UserResource extends Resource
 {
@@ -21,6 +26,10 @@ class UserResource extends Resource
     protected static ?string $navigationGroup = 'Users & Employee Management';
     protected static ?string $navigationLabel = 'Employees';
     protected static bool $isLazy = false;
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
 
     public static function form(Form $form): Form
@@ -36,8 +45,14 @@ class UserResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password')
                     ->password()
-                    ->required()
-                    ->maxLength(255),
+                    ->required(fn (string $context): bool => $context === 'create')
+                    ->disabled(fn (string $context): bool => $context === 'edit')
+                    ->maxLength(255)
+                    ->dehydrateStateUsing(fn ($state, $record) =>
+                        filled($state)
+                            ? bcrypt($state)
+                            : $record->password // keep old hash if empty
+                    ),
                 Forms\Components\TextInput::make('contact_number')
                     ->maxLength(255)
                     ->default(null),
@@ -52,21 +67,28 @@ class UserResource extends Resource
                     ->default(null),
                 Forms\Components\TextInput::make('hourly_rate')
                     ->numeric()
+                    ->required()
                     ->default(null),
                 Forms\Components\TextInput::make('daily_rate')
                     ->numeric()
+                    ->required()
                     ->default(null),
-                Forms\Components\TextInput::make('signature')
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('role_id')
-                    ->numeric()
+                Forms\Components\Select::make('role_id')
+                    ->relationship('role','name')
+                    ->default(null)
+                    ->required(),
+                Forms\Components\FileUpload::make('signature')
+                    ->imageEditor()
+                    ->deletable()
+                    ->preserveFilenames()
                     ->default(null),
             ]);
     }
 
     public static function table(Table $table): Table
     {
+         
+
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
@@ -102,7 +124,7 @@ class UserResource extends Resource
                     ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                Tables\Columns\TextColumn::make('signature')
+                Tables\Columns\ImageColumn::make('signature')
                     ->searchable(),
                 
             ])
@@ -110,13 +132,20 @@ class UserResource extends Resource
             ->filters([
                 //
             ])
+           
             ->actions([
                 Tables\Actions\EditAction::make()
                 ->slideOver(),
-            ])
+                ], position: ActionsPosition::BeforeCells)  
+                     
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    ExportBulkAction::make()
+                    ->label('Export Selected')
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray'),
+                Tables\Actions\DeleteBulkAction::make(),
+                    
                 ]),
             ]);
     }

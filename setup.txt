@@ -37,4 +37,8 @@ php artisan shield:publish filament
 php artisan shield:install
 php artisan shield:super-admin
 
+//for excel
+composer require pxlrbt/filament-excel
+
+
 
