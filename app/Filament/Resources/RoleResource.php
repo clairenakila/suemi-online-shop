@@ -114,12 +114,13 @@ class RoleResource extends Resource implements HasShieldPermissions
                     ->label(__('filament-shield::filament-shield.column.updated_at'))
                     ->dateTime(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                ->slideOver(),
+                 ->slideOver(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
