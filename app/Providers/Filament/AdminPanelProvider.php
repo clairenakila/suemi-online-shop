@@ -18,6 +18,9 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Navigation\MenuItem;
+
+
 
 
 class AdminPanelProvider extends PanelProvider
@@ -39,11 +42,15 @@ class AdminPanelProvider extends PanelProvider
                 'secondary' => '#E90074',
                 // #f43f5e
             ])
+            ->profile(isSimple: false)
+            ->passwordReset()
+            ->emailVerification()
             ->brandName('Suemi Online Shop')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -67,5 +74,10 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+        //     ->userMenuItems([
+        //     'profile' => MenuItem::make()->label('user.name'),
+        //     // ...
+        // ]);
+            
     }
 }

@@ -35,7 +35,8 @@ class User extends Authenticatable
         'philhealth_number',
         'hourly_rate',
         'daily_rate',
-        'signature'
+        'signature',
+        'is_live_seller'
 
     ];
 

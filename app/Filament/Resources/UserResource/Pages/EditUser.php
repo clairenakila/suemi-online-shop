@@ -20,4 +20,15 @@ class EditUser extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if (!empty($data['new_password'])) {
+            $data['password'] = bcrypt($data['new_password']); // hash and assign
+        }
+
+        unset($data['new_password'], $data['new_password_confirmation']);
+
+        return $data;
+    }
 }

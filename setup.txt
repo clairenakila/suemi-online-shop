@@ -16,7 +16,6 @@
 
 
 
-
 C:\Windows\System32\drivers\etc host
 127.0.0.1   suemionlineshop.com
 127.0.0.1   www.suemionlineshop.com
@@ -40,5 +39,29 @@ php artisan shield:super-admin
 //for excel
 composer require pxlrbt/filament-excel
 
+//for profile
+composer require filament/profile
+composer require joaopaulolndev/filament-edit-profile
+
+//mail
+http://192.168.1.49:8025
+http://127.0.0.1:8025
+php artisan config:clear
+
+MAIL_MAILER=smtp
+MAIL_HOST=127.0.0.1
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="noreply@suemionlineshop.local"
+MAIL_FROM_NAME="Suemi Online Shop"
+
+php artisan make:notification ResetPasswordNotification
+
+//
+php artisan queue:work
+192.168.1.49:8025
+https://github.com/mailhog/MailHog/releases
 
 

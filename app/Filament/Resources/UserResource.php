@@ -16,6 +16,8 @@ use Filament\Tables\Enums\ActionsPosition;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use Spatie\Permission\Models\Role;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
 
 
 
@@ -36,57 +38,79 @@ class UserResource extends Resource
 
 
     public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('password')
-                    ->password()
-                    ->required(fn (string $context): bool => $context === 'create')
-                    ->disabled(fn (string $context): bool => $context === 'edit')
-                    ->maxLength(255)
-                    ->dehydrateStateUsing(fn ($state, $record) =>
-                        filled($state)
-                            ? bcrypt($state)
-                            : $record->password // keep old hash if empty
-                    ),
-                Forms\Components\TextInput::make('contact_number')
-                    ->maxLength(11)
-                    ->default(null),
-                Forms\Components\TextInput::make('sss_number')
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('pagibig_number')
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('philhealth_number')
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('hourly_rate')
-                    ->numeric()
-                    ->required()
-                    ->default(null),
-                Forms\Components\TextInput::make('daily_rate')
-                    ->numeric()
-                    ->required()
-                    ->default(null),
-                Forms\Components\Select::make('role_id')
-                    ->relationship('role','name')
-                    ->default(null)
-                    ->required(),
-                Forms\Components\FileUpload::make('signature')
-                    ->imageEditor()
-                    ->deletable()
-                    ->preserveFilenames()
-                    ->default(null),
-            ]);
-    }
+{
+    return $form
+        ->schema([
+            Forms\Components\TextInput::make('name')
+                ->required()
+                ->maxLength(255),
+
+            Forms\Components\TextInput::make('email')
+                ->email()
+                ->required()
+                ->maxLength(255),
+
+            // Password for create only
+            Forms\Components\TextInput::make('password')
+                ->password()
+                ->required(fn (string $context): bool => $context === 'create')
+                ->disabled(fn (string $context): bool => $context === 'edit')
+                ->maxLength(255)
+                ->dehydrateStateUsing(fn ($state, $record) =>
+                    filled($state)
+                        ? bcrypt($state)
+                        : $record->password
+                ),
+
+            Forms\Components\Select::make('is_live_seller')
+                ->label('Is Live Seller')
+                ->default('No')
+                ->options([
+                    'Yes' => 'Yes',
+                    'No'  => 'No',
+                ])
+                ->required(),
+
+            Forms\Components\TextInput::make('contact_number')
+                ->maxLength(11)
+                ->default(null),
+
+            Forms\Components\TextInput::make('sss_number')
+                ->maxLength(255)
+                ->default(null),
+
+            Forms\Components\TextInput::make('pagibig_number')
+                ->maxLength(255)
+                ->default(null),
+
+            Forms\Components\TextInput::make('philhealth_number')
+                ->maxLength(255)
+                ->default(null),
+
+            Forms\Components\TextInput::make('hourly_rate')
+                ->numeric()
+                ->required()
+                ->default(null),
+
+            Forms\Components\TextInput::make('daily_rate')
+                ->numeric()
+                ->required()
+                ->default(null),
+
+            Forms\Components\Select::make('role_id')
+                ->relationship('role', 'name')
+                ->default(null)
+                ->required(),
+
+            Forms\Components\FileUpload::make('signature')
+                ->imageEditor()
+                ->deletable()
+                ->preserveFilenames()
+                ->default(null),
+        ]);
+}
+
+    
 
     public static function table(Table $table): Table
     {
@@ -104,6 +128,10 @@ class UserResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('is_live_seller')
+                    ->label('Is Live Seller?')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('password')
@@ -232,6 +260,19 @@ class UserResource extends Resource
                 ])
             ]);
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+{
+    if (!empty($data['new_password'])) {
+        $data['password'] = $data['new_password']; // Assign hashed password to the actual password column
+    }
+
+    // Remove temporary fields
+    unset($data['new_password'], $data['new_password_confirmation']);
+
+    return $data;
+}
+
 
     public static function getRelations(): array
     {
