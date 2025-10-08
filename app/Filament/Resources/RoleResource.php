@@ -18,6 +18,8 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
+use Filament\Tables\Enums\ActionsPosition;
+
 
 class RoleResource extends Resource implements HasShieldPermissions
 {
@@ -121,8 +123,8 @@ class RoleResource extends Resource implements HasShieldPermissions
             ->actions([
                 Tables\Actions\EditAction::make()
                  ->slideOver(),
-                Tables\Actions\DeleteAction::make(),
-            ])
+                // Tables\Actions\DeleteAction::make(),
+            ], position: ActionsPosition::BeforeCells) 
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
             ]);

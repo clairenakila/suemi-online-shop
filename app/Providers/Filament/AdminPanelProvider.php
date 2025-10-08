@@ -36,6 +36,8 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarFullyCollapsibleOnDesktop()
             ->colors([
                 'primary' => '#fe3298',
+                'secondary' => '#E90074',
+                // #f43f5e
             ])
             ->brandName('Suemi Online Shop')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')

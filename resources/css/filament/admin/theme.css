@@ -1,0 +1,21 @@
+/* Table row hover */
+.fi-ta-table tr:hover {
+    background-color: #ffe4e6 !important; /* rose-100 */
+}
+
+/* Optional: if you want a stronger color */
+.fi-ta-table tr:hover td {
+    background-color: #fecdd3 !important; /* rose-200 */
+}
+
+/* Sidebar item hover */
+.fi-sidebar-nav a:hover {
+    background-color: #f43f5e !important; /* Rose-500 */
+    color: white !important;
+}
+
+/* Optional: active link styling */
+.fi-sidebar-nav a.fi-active {
+    background-color: #e11d48 !important; /* Rose-600 */
+    color: white !important;
+}

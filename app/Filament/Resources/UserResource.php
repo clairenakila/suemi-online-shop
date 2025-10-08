@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Enums\ActionsPosition;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Spatie\Permission\Models\Role;
+use Filament\Tables\Columns\TextColumn;
 
 
 
@@ -100,10 +102,18 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                Tables\Columns\TextColumn::make('contact_number')
-                    ->label('Contact Number')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('password')
+                    ->label('Password')
+                    ->limit(10)
+                     ->getStateUsing(fn () => 'password')
+                    ->tooltip(function (TextColumn $column): ?string {
+                        $state = $column->getState();
+                        return strlen($state) > $column->getCharacterLimit() ? $state : null;
+                    }),
+
+                Tables\Columns\TextColumn::make('role.name')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('sss_number')
                     ->searchable()
                     ->label('SSS Number')
@@ -140,13 +150,79 @@ class UserResource extends Resource
                      
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    ExportBulkAction::make()
+                    Tables\Actions\BulkAction::make('bulk_update')
+                    ->label('Bulk Update')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('secondary')
+                    // ->extraAttributes([
+                    //     'class' => 'bg-[#f43f5e] hover:bg-[#e11d48] text-white',
+                    // ])
+                    ->requiresConfirmation()
+                    ->modalIcon('heroicon-o-pencil-square')
+                    ->modalHeading('Bulk Update User Details')
+                    ->modalDescription('Select the fields you want to update.')
+                    ->form(function (Forms\Form $form) {
+                return $form->schema([
+                    // Select columns to update    
+                    Forms\Components\CheckboxList::make('fields_to_update')
+                        ->label('Select fields to update.')
+                        ->options([
+                            'role_id' => 'Role',
+                            'hourly_rate' => 'Hourly Rate',
+                            'daily_rate' => 'Daily Rate',
+                        ])
+                        ->columns(1)
+                        ->reactive(), 
+                    Forms\Components\Select::make('role_id')
+                        ->label('Role')
+                        ->options(Role::all()->pluck('name', 'id'))
+                        ->visible(fn ($get) => in_array('role_id', $get('fields_to_update') ?? [])) 
+                        ->required(fn ($get) => in_array('role_id', $get('fields_to_update') ?? [])),
+                    Forms\Components\TextInput::make('hourly_rate')
+                        ->label('Hourly Rate')
+                        ->visible(fn ($get) => in_array('hourly_rate', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('hourly_rate', $get('fields_to_update') ?? [])),
+                    Forms\Components\TextInput::make('daily_rate')
+                        ->label('Daily Rate')
+                        ->visible(fn ($get) => in_array('daily_rate', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('daily_rate', $get('fields_to_update') ?? [])),
+                ]);
+            })
+            ->action(function (array $data, $records) {
+                foreach ($records as $record) {
+                    $updateData = [];
+        
+                    if (in_array('role_id', $data['fields_to_update'])) {
+                        $updateData['role_id'] = $data['role_id'];
+                    }
+                    if (in_array('hourly_rate', $data['fields_to_update'])) {
+                        $updateData['hourly_rate'] = $data['hourly_rate'];
+                    }
+                    if (in_array('daily_rate', $data['fields_to_update'])) {
+                        $updateData['daily_rate'] = $data['daily_rate'];
+                    }
+        
+                    $record->update($updateData);   
+                }
+        
+                \Filament\Notifications\Notification::make()
+                    ->title('Users updated successfully!')
+                    ->success()
+                    ->color('secondary')
+                    ->send();
+            }),
+                ExportBulkAction::make()
                     ->label('Export Selected')
-                    ->color('success')
-                    ->icon('heroicon-o-arrow-down-tray'),
-                Tables\Actions\DeleteBulkAction::make(),
-                    
-                ]),
+                    ->color('success')   
+                    ->icon('heroicon-o-arrow-down-tray')
+                        ->exports([
+                            \pxlrbt\FilamentExcel\Exports\ExcelExport::make('Employees')
+                                ->fromTable()
+                                ->withFilename('Employees.xlsx'),
+                        ]),
+                 Tables\Actions\DeleteBulkAction::make(),
+
+                ])
             ]);
     }
 
