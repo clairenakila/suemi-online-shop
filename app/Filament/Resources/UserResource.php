@@ -133,6 +133,11 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('is_live_seller')
                     ->label('Is Live Seller?')
                     ->searchable()
+                    ->badge()
+                    ->color(fn (string $state): string => match (strtolower($state)) {
+                            'yes' => 'success',
+                            'no' => 'danger',
+                        })
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('password')
                     ->label('Password')

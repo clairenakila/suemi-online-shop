@@ -10,6 +10,8 @@ use Spatie\Permission\Traits\HasRoles;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use App\Models\Item;
+
 
 
 
@@ -69,5 +71,9 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+     public function item()
+    {
+        return $this->hasMany(Item::class, 'user_id');
     }
 }

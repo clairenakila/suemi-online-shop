@@ -42,7 +42,6 @@ class AdminPanelProvider extends PanelProvider
                 'secondary' => '#E90074',
                 // #f43f5e
             ])
-            ->profile(isSimple: false)
             ->passwordReset()
             ->emailVerification()
             ->brandName('Suemi Online Shop')
@@ -74,10 +73,7 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
-        //     ->userMenuItems([
-        //     'profile' => MenuItem::make()->label('user.name'),
-        //     // ...
-        // ]);
+       
             
     }
 }
