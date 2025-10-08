@@ -36,7 +36,7 @@ class ListUsers extends ListRecords
             ->button()
             ->form([
                 FileUpload::make('attachment')
-                    ->label('Import an Excel file. Column headers must include: Name, Role, Email, Contact Number, SSS Number, Pag-IBIG Number, Philhealth Number, Hourly Rate, Daily Rate, and Signature.'),
+                    ->label('Import an Excel file. Column headers must include: Name, Role, Email, Contact Number, SSS Number, Pag-IBIG Number, Philhealth Number, Hourly Rate, Daily Rate, and Signature Existing Name and Email will cause failure.') 
             ])
             ->action(function (array $data) {
                 $file = public_path('storage/' . $data['attachment']);
