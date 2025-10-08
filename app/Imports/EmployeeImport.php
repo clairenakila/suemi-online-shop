@@ -67,7 +67,7 @@ class EmployeeImport implements ToModel, WithHeadingRow
         'contact_number' => $row['contact_number'] ?? null,
         // 'user_id' => User::where('name', $userName)->value('id') ?? null,
         // 'status' => $status,
-        'sss_number' => $row['date_acquired'] ?? null,
+        'sss_number' => $row['sss_number'] ?? null,
         'pagibig_number' => $row['pagibig_number'] ?? null,
         'philhealth_number' => $row['philhealth_number'] ?? null,
         'hourly_rate' => $row['hourly_rate'] ?? null,

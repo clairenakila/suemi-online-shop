@@ -122,6 +122,7 @@ class RoleResource extends Resource implements HasShieldPermissions
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
+                ->label('')
                  ->slideOver(),
                 // Tables\Actions\DeleteAction::make(),
             ], position: ActionsPosition::BeforeCells) 

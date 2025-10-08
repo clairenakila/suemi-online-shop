@@ -23,13 +23,15 @@ class ListUsers extends ListRecords
 
     $actions = [
         Actions\CreateAction::make()
-            ->label('Create'),
+            ->label('Create')
+            ->slideOver(),
     ];
 
     // ✅ Show import only for super_admin (role_id = 1)
     if ($user && $user->role_id === 1) {
         $actions[] = Action::make('importEmployee')
             ->label('Import')
+            ->slideOver()
             ->color('success')
             ->button()
             ->form([

@@ -120,7 +120,7 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('pagibig_number')
                     ->searchable()
-                    ->label('Pag-IBIG')
+                    ->label('Pagibig Number')
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('philhealth_number')
                     ->searchable()
@@ -145,6 +145,7 @@ class UserResource extends Resource
            
             ->actions([
                 Tables\Actions\EditAction::make()
+                ->label('')
                 ->slideOver(),
                 ], position: ActionsPosition::BeforeCells)  
                      
@@ -152,6 +153,7 @@ class UserResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\BulkAction::make('bulk_update')
                     ->label('Bulk Update')
+                    ->slideOver()
                     ->icon('heroicon-o-pencil-square')
                     ->color('secondary')
                     // ->extraAttributes([
@@ -220,7 +222,8 @@ class UserResource extends Resource
                                 ->fromTable()
                                 ->withFilename('Employees.xlsx'),
                         ]),
-                 Tables\Actions\DeleteBulkAction::make(),
+                 Tables\Actions\DeleteBulkAction::make()
+                 ->slideOver(),
 
                 ])
             ]);
