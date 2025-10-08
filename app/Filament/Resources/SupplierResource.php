@@ -50,7 +50,17 @@ class SupplierResource extends Resource
             ->paginated([ 25, 50, 100, 'all'])
             ->extremePaginationLinks()
             ->columns([
-                Tables\Columns\TextColumn::make('created_at')
+               
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('contact_number')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -58,13 +68,8 @@ class SupplierResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('contact_number')
-                    ->searchable()
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
