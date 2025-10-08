@@ -89,44 +89,55 @@ class ItemResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Prepared By')
                     ->numeric()
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('brand')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('order_id')
                     ->label('Order ID')
+                    ->searchable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('category.description')
                     ->label('Category')
+                    ->searchable()
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('quantity')
                     ->numeric()
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('capital')
                     ->numeric()
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('selling_price')
                     ->numeric()
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('is_returned')
                 ->badge()
+                ->searchable()
                  ->color(fn (string $state): string => match (strtolower($state)) {
                             'yes' => 'success',
                             'no' => 'danger',
                         }),
                 Tables\Columns\TextColumn::make('date_returned')
                     ->dateTime()
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('date_shipped')
                     ->dateTime()
+                    ->searchable()
                     ->sortable(),
             ])
             ->filters([
