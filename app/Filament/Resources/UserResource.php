@@ -20,6 +20,7 @@ use Filament\Tables\Columns\TextColumn;
 
 
 
+
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
@@ -56,7 +57,7 @@ class UserResource extends Resource
                             : $record->password // keep old hash if empty
                     ),
                 Forms\Components\TextInput::make('contact_number')
-                    ->maxLength(255)
+                    ->maxLength(11)
                     ->default(null),
                 Forms\Components\TextInput::make('sss_number')
                     ->maxLength(255)
@@ -92,6 +93,9 @@ class UserResource extends Resource
          
 
         return $table
+            ->defaultPaginationPageOption(25)
+            ->paginated([ 25, 50, 100, 'all'])
+            ->extremePaginationLinks()
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
