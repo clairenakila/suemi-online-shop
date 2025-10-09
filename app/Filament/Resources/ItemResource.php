@@ -227,19 +227,21 @@ class ItemResource extends Resource
                             ->pluck('description', 'id')
                             ->toArray()
                     ),
-                SelectFilter::make('liveseller')
-                    ->label('Prepared By')
-                    ->options(
-                        \App\Models\User::whereIn('id', \App\Models\Item::pluck('user_id')->unique())
-                            ->pluck('name', 'id')
-                            ->toArray()
-                    ),
+            
                 SelectFilter::make('live_seller')
                     ->label('Live Seller')
                     ->options(
                         \App\Models\Item::whereNotNull('live_seller')
                             ->distinct()
                             ->pluck('live_seller', 'live_seller')
+                            ->toArray()
+                    ),
+                 SelectFilter::make('quantity')
+                    ->label('Quantity')
+                    ->options(
+                        \App\Models\Item::whereNotNull('quantity')
+                            ->distinct()
+                            ->pluck('quantity', 'quantity')
                             ->toArray()
                     ),
                 
