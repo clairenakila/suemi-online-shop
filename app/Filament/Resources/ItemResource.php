@@ -20,6 +20,10 @@ use Spatie\Permission\Models\Role;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Columns\Summarizers\Sum;
 
 
 class ItemResource extends Resource
@@ -34,7 +38,8 @@ class ItemResource extends Resource
             ->schema([
                 Forms\Components\DateTimePicker::make('created_at')
                 ->label('Created At')
-                ->default('now'),
+                ->default('now')
+                ->readOnly(fn () => ! auth()->user()->hasRole('super_admin')),
                 Forms\Components\Select::make('category_id')
                     ->relationship('category','description')
                     ->default(function () {
@@ -49,8 +54,7 @@ class ItemResource extends Resource
                 Forms\Components\TextInput::make('quantity')
                     ->numeric()
                     ->required()
-                    ->placeholder('Ilang bag sa isang code? Enter a number only.')
-                    ->default(1),
+                    ->placeholder('Ilang bag sa isang code? Enter a number only.'),
                 Forms\Components\TextInput::make('brand')
                     ->required()
                     ->maxLength(255),
@@ -143,22 +147,26 @@ class ItemResource extends Resource
                 Tables\Columns\TextColumn::make('capital')
                     ->numeric()
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(Sum::make()->label('Total Capital')->money('PHP')),
                 Tables\Columns\TextColumn::make('selling_price')
                     ->label('Selling Price')
                     ->numeric()
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(Sum::make()->label('Total Selling Price')->money('PHP')),
                 Tables\Columns\TextColumn::make('shoppee_commission')
                     ->label('Shoppee Commission')
                     ->numeric()
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(Sum::make()->label('Total Shoppee Commission (21%)')->money('PHP')),
                 Tables\Columns\TextColumn::make('total_gross_sale')
                     ->label('Total Gross Sale')
                     ->numeric()
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(Sum::make()->label('Total Gross Sale')->money('PHP')),
                 Tables\Columns\TextColumn::make('live_seller')
                     ->label('Live Seller')
                     ->searchable(),                                   
@@ -181,10 +189,54 @@ class ItemResource extends Resource
                     ->searchable()
                     ->sortable(),
             ])
+            
             ->defaultSort('created_at','desc')
             ->filters([
-                //
-            ])
+
+                Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('created_at')
+                            ->label('Date'),
+                    ])
+                    ->query(function ($query, array $data): void {
+                        $query->when(
+                            $data['created_at'],
+                            fn ($query, $date) => $query->whereDate('created_at', $date),
+                        );
+                    }),
+
+                SelectFilter::make('user_id')
+                    ->label('Prepared By')
+                    ->options(
+                        \App\Models\User::whereIn('id', \App\Models\Item::pluck('user_id')->unique())
+                            ->pluck('name', 'id')
+                            ->toArray()
+                    ),
+                SelectFilter::make('category_id')
+                    ->label('Category')
+                    ->options(
+                        \App\Models\Category::whereIn('id', \App\Models\Item::pluck('category_id')->unique())
+                            ->pluck('description', 'id')
+                            ->toArray()
+                    ),
+                SelectFilter::make('liveseller')
+                    ->label('Prepared By')
+                    ->options(
+                        \App\Models\User::whereIn('id', \App\Models\Item::pluck('user_id')->unique())
+                            ->pluck('name', 'id')
+                            ->toArray()
+                    ),
+                SelectFilter::make('live_seller')
+                    ->label('Live Seller')
+                    ->options(
+                        \App\Models\Item::whereNotNull('live_seller')
+                            ->distinct()
+                            ->pluck('live_seller', 'live_seller')
+                            ->toArray()
+                    ),
+                
+        ])
+        
             ->actions([
                 Tables\Actions\EditAction::make()
                 ->slideOver(),
@@ -328,10 +380,10 @@ class ItemResource extends Resource
                     if (in_array('live_seller', $data['fields_to_update'])) {
                         $updateData['live_seller'] = $data['live_seller'];
                     }
-$record->timestamps = false;  // 🚨 very important
-    $record->update($updateData);
-    $record->timestamps = true;
-                }
+                        $record->timestamps = false;  // 🚨 very important
+                            $record->update($updateData);
+                            $record->timestamps = true;
+                    }
         
                 \Filament\Notifications\Notification::make()
                     ->title('Items updated successfully!')
