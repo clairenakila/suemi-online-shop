@@ -4,101 +4,103 @@ namespace App\Imports;
 
 use App\Models\User;
 use App\Models\Category;
-use Maatwebsite\Excel\Concerns\ToModel;
+use App\Models\Item;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\Importable;
+use Illuminate\Support\Collection;
 use Filament\Notifications\Notification;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Hash;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\AfterImport;
-use App\Models\Item;
+use Carbon\Carbon;
+use Exception;
 
-
-class ItemImport implements ToModel, WithHeadingRow
+class ItemImport implements ToCollection, WithHeadingRow
 {
     use Importable;
 
-    public function model(array $row)
-{
-    $normalized = [];
-    foreach ($row as $key => $value) {
-        $key = strtolower(trim($key));
-        $key = str_replace([' ', '-', '/'], '_', $key);
-        $normalized[$key] = $value;
-    }
-    $row = $normalized;
+    public function collection(Collection $rows)
+    {
+        $missingUsers = [];
+        $itemsToInsert = [];
 
-    if (empty($row['brand'])) {
-        return null;
-    }
-
-    $categoryDescription = trim($row['category'] ?? '');
-    $category = $categoryDescription
-        ? Category::firstOrCreate(['description' => $categoryDescription], ['description' => $categoryDescription])
-        : null;
-
-    $user = User::where('name', $row['prepared_by'] ?? '')->first();
-
-    // ✅ Convert Excel numeric dates to PHP datetime
-    $convertDate = function ($value) {
-        if (is_numeric($value)) {
-            // Excel stores 1 as 1900-01-01
-            return \Carbon\Carbon::createFromTimestamp(($value - 25569) * 86400)->format('Y-m-d H:i:s');
-        }
-        if (!empty($value)) {
-            // Try parsing regular date strings like "10/3/2025 3:15:57 PM"
-            try {
-                return \Carbon\Carbon::parse($value)->format('Y-m-d H:i:s');
-            } catch (\Exception $e) {
-                return null;
+        foreach ($rows as $row) {
+            // Normalize Excel headers
+            $normalized = [];
+            foreach ($row as $key => $value) {
+                $key = strtolower(trim($key));
+                $key = str_replace([' ', '-', '/'], '_', $key);
+                $normalized[$key] = $value;
             }
-        }
-        return null;
-    };
+            $row = $normalized;
 
-    $data = [
-        'created_at'    => $convertDate($row['timestamp'] ?? null),
-        'brand'         => $row['brand'] ?? null,
-        'order_id'      => $row['order_id'] ?? null,
-        'category_id'   => $category ? $category->id : null,
-        'quantity'      => $row['quantity'] ?? null,
-        'capital'       => $row['capital'] ?? null,
-        'selling_price' => $row['selling_price'] ?? null,
-        'is_returned'   => $row['is_returned'] ?? 'No',
-        'date_returned' => $convertDate($row['date_returned'] ?? null),
-        'date_shipped'  => $convertDate($row['date_shipped'] ?? null),
-        'live_seller'   => $row['live_seller'] ?? null,
-    ];
+            if (empty($row['brand'])) {
+                continue;
+            }
 
-    return new Item($data);
-}
+            $categoryDescription = trim($row['category'] ?? '');
+            $category = $categoryDescription
+                ? Category::firstOrCreate(['description' => $categoryDescription], ['description' => $categoryDescription])
+                : null;
 
+            $userName = trim($row['prepared_by'] ?? '');
+            $user = User::whereRaw('LOWER(TRIM(name)) = ?', [strtolower(trim($userName))])->first();
 
-    public function getCategoryId($category)
-    {
-        // Check if location exists, else return null
-        if (!$category) {
-            return null;
-        }
+            if (!$user && $userName !== '') {
+                $missingUsers[] = $userName;
+            }
 
-        $category = Category::firstOrCreate(['description' => $category], ['description' => $category]);
-        return $category->id;
-    }
-
-
-    public function registerEvents(): array
-    {
-        return [
-            AfterImport::class => function (AfterImport $event) {
-                if (!empty($this->importedEmployees)) {
-                    Notification::make()
-                        ->title('Employees Imported')
-                        ->body('Imported employees: ' . implode(', ', $this->importedEmployees))
-                        ->success()
-                        ->send();
+            // Convert Excel numeric dates → datetime
+            $convertDate = function ($value) {
+                if (is_numeric($value)) {
+                    return Carbon::createFromTimestamp(($value - 25569) * 86400)->format('Y-m-d H:i:s');
                 }
-            },
-        ];
+                if (!empty($value)) {
+                    try {
+                        return Carbon::parse($value)->format('Y-m-d H:i:s');
+                    } catch (Exception $e) {
+                        return null;
+                    }
+                }
+                return null;
+            };
+
+            $itemsToInsert[] = [
+                'created_at'    => $convertDate($row['timestamp'] ?? null),
+                'brand'         => $row['brand'] ?? null,
+                'order_id'      => $row['order_id'] ?? null,
+                'category_id'   => $category ? $category->id : null,
+                'user_id'       => $user ? $user->id : null,
+                'quantity'      => $row['quantity'] ?? null,
+                'capital'       => $row['capital'] ?? null,
+                'selling_price' => $row['selling_price'] ?? null,
+                'is_returned'   => $row['is_returned'] ?? 'No',
+                'date_returned' => $convertDate($row['date_returned'] ?? null),
+                'date_shipped'  => $convertDate($row['date_shipped'] ?? null),
+                'live_seller'   => $row['live_seller'] ?? null,
+            ];
+        }
+
+        // ❌ Stop if any user names were not found
+        if (!empty($missingUsers)) {
+            $list = implode(', ', array_unique($missingUsers));
+
+            Notification::make()
+                ->title('Import Failed')
+                ->body("The following 'Prepared By' names have no account in the system: {$list}")
+                ->danger()
+                ->send();
+
+            throw new Exception("Import cancelled: Walang account sina: -> {$list}");
+        }
+
+        // ✅ Only save if all users exist
+        foreach ($itemsToInsert as $data) {
+            Item::create($data);
+        }
+
+        Notification::make()
+            ->title('Import Successful')
+            ->body('All items were successfully imported.')
+            ->success()
+            ->send();
     }
 }

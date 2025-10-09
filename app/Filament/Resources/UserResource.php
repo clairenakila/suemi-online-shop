@@ -73,6 +73,7 @@ class UserResource extends Resource
 
             Forms\Components\TextInput::make('contact_number')
                 ->maxLength(11)
+                ->placeholder('11 digits only: 09918895944')
                 ->default(null),
 
             Forms\Components\TextInput::make('sss_number')
@@ -128,6 +129,9 @@ class UserResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('contact_number')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('is_live_seller')

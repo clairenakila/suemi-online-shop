@@ -150,7 +150,8 @@ class ItemResource extends Resource
                 Tables\Columns\TextColumn::make('quantity')
                     ->numeric()
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(Sum::make()->label('Total Quantity')->suffix('pcs.')),
                 Tables\Columns\TextColumn::make('capital')
                     ->numeric()
                     ->searchable()
