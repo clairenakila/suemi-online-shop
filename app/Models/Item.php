@@ -10,6 +10,7 @@ use App\Models\User;
 class Item extends Model
 {
      protected $fillable = [
+        'created_at',
         'brand',
         'order_id',
         'category_id',

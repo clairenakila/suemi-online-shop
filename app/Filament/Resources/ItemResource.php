@@ -6,6 +6,7 @@ use App\Filament\Resources\ItemResource\Pages;
 use App\Filament\Resources\ItemResource\RelationManagers;
 use App\Models\Item;
 use App\Models\User;
+use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -20,6 +21,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 
+
 class ItemResource extends Resource
 {
     protected static ?string $model = Item::class;
@@ -30,6 +32,9 @@ class ItemResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\DateTimePicker::make('created_at')
+                ->label('Created At')
+                ->default('now'),
                 Forms\Components\Select::make('category_id')
                     ->relationship('category','description')
                     ->default(function () {
@@ -67,10 +72,10 @@ class ItemResource extends Resource
                     ->required()
                     ->default(null),
                 Forms\Components\TextInput::make('selling_price')
-    ->label('Selling Price')
-    ->numeric()
-    ->required()
-    ->placeholder('Enter the selling price'),
+                    ->label('Selling Price')
+                    ->numeric()
+                    ->required()
+                    ->placeholder('Enter the selling price'),
 
                 Forms\Components\TextInput::make('shoppee_commission')
                     ->numeric()
@@ -104,11 +109,13 @@ class ItemResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Created At')
                     ->dateTime()
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Updated At')
                     ->dateTime()
                     ->sortable()
                     ->searchable()
@@ -138,14 +145,17 @@ class ItemResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('selling_price')
+                    ->label('Selling Price')
                     ->numeric()
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('shoppee_commission')
+                    ->label('Shoppee Commission')
                     ->numeric()
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total_gross_sale')
+                    ->label('Total Gross Sale')
                     ->numeric()
                     ->searchable()
                     ->sortable(),
@@ -153,17 +163,20 @@ class ItemResource extends Resource
                     ->label('Live Seller')
                     ->searchable(),                                   
                 Tables\Columns\TextColumn::make('is_returned')
-                ->badge()
-                ->searchable()
-                 ->color(fn (string $state): string => match (strtolower($state)) {
-                            'yes' => 'success',
-                            'no' => 'danger',
-                        }),
+                    ->label('Is Returned')
+                    ->badge()
+                    ->searchable()
+                    ->color(fn (string $state): string => match (strtolower($state)) {
+                                'yes' => 'success',
+                                'no' => 'danger',
+                            }),
                 Tables\Columns\TextColumn::make('date_returned')
+                    ->label('Date Returned')
                     ->dateTime()
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('date_shipped')
+                    ->label('Date Shipped')
                     ->dateTime()
                     ->searchable()
                     ->sortable(),
@@ -178,11 +191,170 @@ class ItemResource extends Resource
             ], position: ActionsPosition::BeforeCells) 
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                    ->slideOver(),
-                ]),
+                    Tables\Actions\BulkAction::make('bulk_update')
+                    ->label('Bulk Update')
+                    ->slideOver()
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('secondary')
+                    ->requiresConfirmation()
+                    ->modalIcon('heroicon-o-pencil-square')
+                    ->modalHeading('Bulk Update User Details')
+                    ->modalDescription('Select the fields you want to update.')
+                    ->form(function (Forms\Form $form) {
+                return $form->schema([
+                    // Select columns to update    
+                    Forms\Components\CheckboxList::make('fields_to_update')
+                        ->label('Select fields to update.')
+                        ->options([
+                            'created_at'=>'Created At',
+                            'brand' => 'Brand',
+                            'order_id' => 'Order ID',
+                            'category_id' => 'Category',
+                            'user_id' => 'Prepared By',
+                            'quantity' => 'Quantity',
+                            'capital' => 'Capital',
+                            'selling_price' => 'Selling Price',
+                            'is_returned' => 'Is Returned',
+                            'date_returned' => 'Date Returned',
+                            'date_shipped' => 'Date Shipped',
+                            'live_seller' => 'Live Seller',
+                           
+                        ])
+                        ->columns(2)
+                        ->reactive(), 
+                    Forms\Components\DateTimePicker::make('created_at')
+                        ->label('Created At')
+                        ->visible(fn ($get) => in_array('created_at', $get('fields_to_update') ?? [])) 
+                        ->required(fn ($get) => in_array('created_at', $get('fields_to_update') ?? [])),
+                    Forms\Components\TextInput::make('brand')
+                        ->label('Brand')
+                        ->visible(fn ($get) => in_array('brand', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('brand', $get('fields_to_update') ?? [])),
+                    Forms\Components\TextInput::make('order_id')
+                        ->label('Order ID')
+                        ->maxLength(4)
+                        ->visible(fn ($get) => in_array('order_id', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('order_id', $get('fields_to_update') ?? [])),
+                    Forms\Components\Select::make('category_id')
+                        ->label('Category')
+                        ->options(\App\Models\Category::all()->pluck('description', 'id'))
+                        ->visible(fn ($get) => in_array('category_id', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('category_id', $get('fields_to_update') ?? [])),
+                    Forms\Components\Select::make('user_id')
+                        ->label('Prepared By')
+                        ->options(\App\Models\User::all()->pluck('name', 'id'))
+                        ->visible(fn ($get) => in_array('user_id', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('user_id', $get('fields_to_update') ?? [])),
+                    Forms\Components\TextInput::make('quantity')
+                        ->label('Quantity')
+                        ->integer()
+                        ->placeholder('Ilang bag sa isang code? Enter a number only.')
+                        ->visible(fn ($get) => in_array('quantity', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('quantity', $get('fields_to_update') ?? [])),
+                    Forms\Components\TextInput::make('capital')
+                        ->label('Capital')
+                        ->integer()
+                        ->visible(fn ($get) => in_array('capital', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('capital', $get('fields_to_update') ?? [])),
+                    Forms\Components\TextInput::make('selling_price')
+                        ->label('Selling Price')
+                        ->integer()
+                        ->visible(fn ($get) => in_array('selling_price', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('selling_price', $get('fields_to_update') ?? [])),
+                    Forms\Components\Select::make('is_returned')
+                        ->label('Is Returned')
+                        ->default('No')
+                        ->options([
+                            'Yes' => 'Yes',
+                            'No'  => 'No',
+                        ])
+                        ->visible(fn ($get) => in_array('is_returned', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('is_returned', $get('fields_to_update') ?? [])),
+                    Forms\Components\DateTimePicker::make('date_returned')
+                        ->label('Date Returned')
+                        ->visible(fn ($get) => in_array('date_returned', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('date_returned', $get('fields_to_update') ?? [])),
+                    Forms\Components\TextInput::make('date_shipped')
+                        ->label('Date Shipped')
+                        ->visible(fn ($get) => in_array('date_shipped', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('date_shipped', $get('fields_to_update') ?? [])),
+                    Forms\Components\Select::make('live_seller')
+                        ->label('Live Seller')
+                         ->options(function () {
+                            return \App\Models\User::where('is_live_seller', 'Yes')
+                                ->pluck('name', 'name'); // key = value = name
+                        })
+                        ->visible(fn ($get) => in_array('live_seller', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('live_seller', $get('fields_to_update') ?? [])),
+                ]);
+            })
+            ->action(function (array $data, $records) {
+                foreach ($records as $record) {
+                    $updateData = [];
+
+                    if (in_array('created_at', $data['fields_to_update'])) {
+                        $updateData['created_at'] = $data['created_at'];
+                    }      
+                    if (in_array('brand', $data['fields_to_update'])) {
+                        $updateData['brand'] = $data['brand'];
+                    }
+                    if (in_array('order_id', $data['fields_to_update'])) {
+                        $updateData['order_id'] = $data['order_id'];
+                    }
+                    if (in_array('category_id', $data['fields_to_update'])) {
+                        $updateData['category_id'] = $data['category_id'];
+                    }
+                    if (in_array('user_id', $data['fields_to_update'])) {
+                        $updateData['user_id'] = $data['user_id'];
+                    }
+                    if (in_array('quantity', $data['fields_to_update'])) {
+                        $updateData['quantity'] = $data['quantity'];
+                    }
+                    if (in_array('capital', $data['fields_to_update'])) {
+                        $updateData['capital'] = $data['capital'];
+                    }
+                    if (in_array('selling_price', $data['fields_to_update'])) {
+                        $updateData['selling_price'] = $data['selling_price'];
+                    }
+                    if (in_array('is_returned', $data['fields_to_update'])) {
+                        $updateData['is_returned'] = $data['is_returned'];
+                    }
+                    if (in_array('date_returned', $data['fields_to_update'])) {
+                        $updateData['date_returned'] = $data['date_returned'];
+                    }
+                    if (in_array('date_shipped', $data['fields_to_update'])) {
+                        $updateData['date_shipped'] = $data['date_shipped'];
+                    }
+                    if (in_array('live_seller', $data['fields_to_update'])) {
+                        $updateData['live_seller'] = $data['live_seller'];
+                    }
+$record->timestamps = false;  // 🚨 very important
+    $record->update($updateData);
+    $record->timestamps = true;
+                }
+        
+                \Filament\Notifications\Notification::make()
+                    ->title('Items updated successfully!')
+                    ->success()
+                    ->color('secondary')
+                    ->send();
+            }),
+                ExportBulkAction::make()
+                    ->label('Export Selected')
+                    ->color('success')   
+                    ->icon('heroicon-o-arrow-down-tray')
+                        ->exports([
+                            \pxlrbt\FilamentExcel\Exports\ExcelExport::make('Items')
+                                ->fromTable()
+                                ->withFilename('Items.xlsx'),
+                        ]),
+                 Tables\Actions\DeleteBulkAction::make()
+                 ->slideOver(),
+
+                ])
             ]);
     }
+              
 
     public static function getRelations(): array
     {
