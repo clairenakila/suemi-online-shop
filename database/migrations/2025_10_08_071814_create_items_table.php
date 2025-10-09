@@ -24,6 +24,13 @@ return new class extends Migration
             $table->enum('is_returned', ['Yes', 'No'])->default('No')->index('item_is_returned');
             $table->timestamp('date_returned')->nullable()->index('item_date_returned');
             $table->timestamp('date_shipped')->nullable()->index('item_date_shipped');
+            $table->string('live_seller')->nullable()->index('item_live_seller');
+            $table->integer('shoppee_commission')->nullable()->index("item_shoppee_commission");
+            $table->integer('total_gross_sale')->nullable()->index("item_total_gross_sale");
+
+
+
+
 
 
         });

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ItemResource\Pages;
 use App\Filament\Resources\ItemResource\RelationManagers;
 use App\Models\Item;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -29,14 +30,6 @@ class ItemResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('brand')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('order_id')
-                    ->label('Order ID')
-                    ->required()
-                    ->placeholder('Apat na letra lamang')
-                    ->maxLength(4),
                 Forms\Components\Select::make('category_id')
                     ->relationship('category','description')
                     ->default(function () {
@@ -53,14 +46,38 @@ class ItemResource extends Resource
                     ->required()
                     ->placeholder('Ilang bag sa isang code? Enter a number only.')
                     ->default(1),
+                Forms\Components\TextInput::make('brand')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('order_id')
+                    ->label('Order ID')
+                    ->required()
+                    ->placeholder('Apat na letra lamang')
+                    ->maxLength(4),
+                Forms\Components\Select::make('live_seller') // the column that stores the name
+                    ->label('Live Seller')
+                    ->options(function () {
+                        return \App\Models\User::where('is_live_seller', 'Yes')
+                            ->pluck('name', 'name'); // key = value = name
+                    })
+                    ->default(fn () => auth()->user()->name)
+                    ->required(),
                 Forms\Components\TextInput::make('capital')
                     ->numeric()
                     ->required()
                     ->default(null),
                 Forms\Components\TextInput::make('selling_price')
+    ->label('Selling Price')
+    ->numeric()
+    ->required()
+    ->placeholder('Enter the selling price'),
+
+                Forms\Components\TextInput::make('shoppee_commission')
                     ->numeric()
-                    ->required()
-                    ->default(null),
+                    ->hidden(),
+                Forms\Components\TextInput::make('total_gross_sale')
+                    ->numeric()
+                    ->hidden(),
 
                 Forms\Components\Section::make('Returned Info')
                 ->schema([
@@ -124,6 +141,17 @@ class ItemResource extends Resource
                     ->numeric()
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('shoppee_commission')
+                    ->numeric()
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('total_gross_sale')
+                    ->numeric()
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('live_seller')
+                    ->label('Live Seller')
+                    ->searchable(),                                   
                 Tables\Columns\TextColumn::make('is_returned')
                 ->badge()
                 ->searchable()
@@ -140,6 +168,7 @@ class ItemResource extends Resource
                     ->searchable()
                     ->sortable(),
             ])
+            ->defaultSort('created_at','desc')
             ->filters([
                 //
             ])
