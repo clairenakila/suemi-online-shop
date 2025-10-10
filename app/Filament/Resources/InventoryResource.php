@@ -108,17 +108,20 @@ class InventoryResource extends Resource
                     ->numeric()
                     ->sortable()
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->summarize(Sum::make()->label('Total Quantity')->suffix('pcs.')),
                 Tables\Columns\TextColumn::make('amount')
                     ->numeric()
                     ->sortable()
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->summarize(Sum::make()->label('Total Amount')->money('PHP')),
                 Tables\Columns\TextColumn::make('total')
                     ->numeric()
                     ->sortable()
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->summarize(Sum::make()->label('Overall Total')->money('PHP')),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
