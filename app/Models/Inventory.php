@@ -29,4 +29,16 @@ class Inventory extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($inventory) {
+            $quantity = $inventory->quantity ?? 0;
+            $amount   = $inventory->amount ?? 0;
+
+            $inventory->total = $quantity * $amount;
+        });
+    }
 }
