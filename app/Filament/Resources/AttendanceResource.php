@@ -68,22 +68,29 @@ class AttendanceResource extends Resource
                 Tables\Columns\TextColumn::make('date')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Name')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('time_in'),
-                Tables\Columns\TextColumn::make('time_out'),
-                Tables\Columns\TextColumn::make('work_shift_status'),
+                Tables\Columns\TextColumn::make('time_in')
+                    ->label('Time In'),
+                Tables\Columns\TextColumn::make('time_out')
+                    ->label('Time Out'),
+                Tables\Columns\TextColumn::make('work_shift_status')
+                ->label('Work Shift Status'),
             ])
+            ->defaultSort('date','desc')
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->label('')
+                    ->slideOver(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->slideOver(),
                 ]),
             ]);
     }
@@ -99,8 +106,8 @@ class AttendanceResource extends Resource
     {
         return [
             'index' => Pages\ListAttendances::route('/'),
-            'create' => Pages\CreateAttendance::route('/create'),
-            'edit' => Pages\EditAttendance::route('/{record}/edit'),
+            // 'create' => Pages\CreateAttendance::route('/create'),
+            // 'edit' => Pages\EditAttendance::route('/{record}/edit'),
         ];
     }
 }
