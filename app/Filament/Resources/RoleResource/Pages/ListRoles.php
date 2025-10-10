@@ -17,7 +17,9 @@ class ListRoles extends ListRecords
     protected function getActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->label('Create')
+                ->slideOver(),
         ];
     }
 //     protected function getHeaderActions(): array

@@ -19,6 +19,11 @@ class Inventory extends Model
         'total',
     ];
 
+    protected $casts = [
+        'quantity' => 'float',
+        'amount' => 'float',
+        'total' => 'float',
+    ];
     public function supplier()
     {
         return $this->belongsTo(Supplier::class);
@@ -30,15 +35,22 @@ class Inventory extends Model
         return $this->belongsTo(Category::class);
     }
 
-    protected static function boot()
+     protected static function boot()
     {
         parent::boot();
 
         static::saving(function ($inventory) {
-            $quantity = $inventory->quantity ?? 0;
-            $amount   = $inventory->amount ?? 0;
+            // Remove commas and non-numeric characters
+            $quantity = preg_replace('/[^0-9.]/', '', $inventory->quantity ?? 0);
+            $amount = preg_replace('/[^0-9.]/', '', $inventory->amount ?? 0);
 
+            $quantity = (float) ($quantity ?: 0);
+            $amount = (float) ($amount ?: 0);
+
+            $inventory->quantity = $quantity;
+            $inventory->amount = $amount;
             $inventory->total = $quantity * $amount;
         });
     }
+
 }

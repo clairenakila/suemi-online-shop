@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Concerns\Importable;
 use Illuminate\Support\Collection;
 use Filament\Notifications\Notification;
 use Carbon\Carbon;
+use Exception;
 
 class InventoryImport implements ToCollection,  WithHeadingRow
 {
@@ -42,7 +43,7 @@ class InventoryImport implements ToCollection,  WithHeadingRow
                 : null;
 
             $supplierName = trim($row['supplier'] ?? '');
-            $supplier = User::whereRaw('LOWER(TRIM(name)) = ?', [strtolower(trim($supplierName))])->first();
+            $supplier = Supplier::whereRaw('LOWER(TRIM(name)) = ?', [strtolower(trim($supplierName))])->first();
 
             if (!$supplier && $supplierName !== '') {
                 $missingSuppliers[] = $supplierName;
@@ -64,14 +65,14 @@ class InventoryImport implements ToCollection,  WithHeadingRow
             };
 
             $itemsToInsert[] = [
-                'date_arrived'    => $convertDate($row['timestamp'] ?? null),
-                'brand'         => $row['brand'] ?? null,
+                'date_arrived'    => $convertDate($row['date_arrived'] ?? null),
                 'category_id'   => $category ? $category->id : null,
                 'supplier_id'       => $supplier ? $supplier->id : null,
                 'box_number'      => $row['box_number'] ?? null,
-                'quantity'       => $row['quantity'] ?? null,
-                'amount' => $row['amount'] ?? null,
-                'total' => $row['total'] ?? null,
+                'quantity'   =>    preg_replace('/[^0-9.]/', '', $row['quantity'] ?? 0),
+                'amount' => preg_replace('/[^0-9.]/', '', $row['quantity'] ?? 0),
+                'total' => preg_replace('/[^0-9.]/', '', $row['quantity'] ?? 0),
+
             ];
         }
 
@@ -81,14 +82,14 @@ class InventoryImport implements ToCollection,  WithHeadingRow
 
             Notification::make()
                 ->title('Import Failed')
-                ->body("The following suppliers have no account in the system: {$list}")
+                ->body("The following suppliers must be created first in the system: {$list}")
                 ->danger()
                 ->send();
 
             throw new Exception("Import cancelled: Hindi pa na create si supplier sa system. -> {$list}");
         }
 
-        // ✅ Only save if all users exist
+        // ✅ Only save if all suppliers exist
         foreach ($itemsToInsert as $data) {
             Inventory::create($data);
         }

@@ -32,6 +32,7 @@ class ListItems extends ListRecords
             ->label('Import')
             ->slideOver()
             ->color('success')
+            ->icon('heroicon-o-arrow-up-tray')
             ->button()
             ->form([
                 FileUpload::make('attachment')

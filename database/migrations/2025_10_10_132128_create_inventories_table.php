@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreignId('category_id')->nullable()->constrained()->onDelete('cascade')->index('inventory_category_id');
             $table->foreignId('supplier_id')->nullable()->constrained()->onDelete('cascade')->index('inventory_supplier_id');
             $table->string('box_number')->nullable()->index('inventory_box_number');
-            $table->integer('quantity')->nullable()->index("inventory_quantity");
-            $table->integer('amount')->nullable()->index("inventory_amount");
+            $table->integer('quantity')->default(0)->nullable()->index("inventory_quantity");
+            $table->integer('amount')->default(0)->nullable()->index("inventory_amount");
             $table->integer('total')->nullable()->index("inventory_total");
         });
     }

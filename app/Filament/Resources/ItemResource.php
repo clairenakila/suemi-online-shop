@@ -36,7 +36,7 @@ class ItemResource extends Resource
     protected static bool $isLazy = false;
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::count();
+        return static::getModel()::Sum('quantity');
     }
 
     public static function form(Form $form): Form
@@ -249,7 +249,8 @@ class ItemResource extends Resource
         
             ->actions([
                 Tables\Actions\EditAction::make()
-                ->slideOver(),
+                ->slideOver()
+                ->label(''),
             ], position: ActionsPosition::BeforeCells) 
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
