@@ -27,9 +27,13 @@ class InventoryResource extends Resource
     protected static ?string $navigationGroup = 'Product Management';
     protected static ?string $navigationLabel = 'Inventories';
     protected static bool $isLazy = false;
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return (string) static::getModel()::sum('quantity');
+    // }
     public static function getNavigationBadge(): ?string
     {
-        return (string) static::getModel()::sum('quantity');
+        return (string) static::getModel()::count();
     }
 
 
