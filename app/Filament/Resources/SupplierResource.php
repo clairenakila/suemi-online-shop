@@ -13,6 +13,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Enums\ActionsPosition;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Spatie\Permission\Models\Role;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
 
 
 class SupplierResource extends Resource
@@ -82,6 +87,15 @@ class SupplierResource extends Resource
             ], position: ActionsPosition::BeforeCells)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                     ExportBulkAction::make()
+                    ->label('Export Selected')
+                    ->color('success')   
+                    ->icon('heroicon-o-arrow-down-tray')
+                        ->exports([
+                            \pxlrbt\FilamentExcel\Exports\ExcelExport::make('Suppliers')
+                                ->fromTable()
+                                ->withFilename('Suppliers.xlsx'),
+                        ]),
                     Tables\Actions\DeleteBulkAction::make()
                     ->slideOver(),
                 ]),
