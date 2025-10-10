@@ -43,10 +43,6 @@ class ListSuppliers extends ListRecords
 
                 Excel::import(new \App\Imports\SupplierImport, $file);
                   
-                Notification::make()
-                        ->title('Suppliers Imported')
-                        ->success()
-                        ->send();
                 
 
             });
