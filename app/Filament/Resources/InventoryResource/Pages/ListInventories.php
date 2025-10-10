@@ -44,10 +44,7 @@ class ListInventories extends ListRecords
     
                     Excel::import(new \App\Imports\InventoryImport, $file);
 
-                    Notification::make()
-                        ->title('Inventories Imported Successfully')
-                        ->success()
-                        ->send();
+                    
                 });
         }
 

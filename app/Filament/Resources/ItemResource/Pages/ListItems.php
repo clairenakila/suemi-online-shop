@@ -43,12 +43,7 @@ class ListItems extends ListRecords
 
                 Excel::import(new \App\Imports\ItemImport, $file);
                   
-                Notification::make()
-                        ->title('Items Imported')
-                        ->success()
-                        ->send();
-                
-
+               
             });
     }
 
