@@ -30,7 +30,7 @@ class ItemResource extends Resource
 {
     protected static ?string $model = Item::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-archive-box';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
     protected static ?string $navigationGroup = 'Product Management';
     protected static ?string $navigationLabel = 'Items';
     protected static bool $isLazy = false;
