@@ -18,6 +18,13 @@ class ListItems extends ListRecords
 {
     protected static string $resource = ItemResource::class;
 
+    protected function getHeaderWidgets(): array
+{
+    return [
+        \App\Filament\Resources\ItemResource\Widgets\ItemSalesSummary::class,
+    ];
+}
+
     protected function getHeaderActions(): array
     {
         $user = auth()->user();
