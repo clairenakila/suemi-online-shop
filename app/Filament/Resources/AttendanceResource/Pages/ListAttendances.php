@@ -10,6 +10,12 @@ use Filament\Notifications\Notification;
 use App\Models\User;
 use App\Models\Attendance;
 use Carbon\CarbonPeriod;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\CheckboxList\SelectAllAction;
+use Filament\Forms\Components\CheckboxList;
+
+
+
 
 class ListAttendances extends ListRecords
 {
@@ -32,21 +38,23 @@ class ListAttendances extends ListRecords
                     Forms\Components\DatePicker::make('end_date')
                         ->label('End Date')
                         ->required(),
+                       
 
-                    Forms\Components\CheckboxList::make('user_ids')
+                    // Forms\Components\CheckboxList::make('user_ids')
+                    //     ->label('Select Employees')
+                    //     ->options(User::where('is_employee', 'Yes')->pluck('name', 'id'))
+                    //     ->columns(2)
+                    //     ->required()
+                    //     ->selectAllAction(function (Action $action) {
+                    //         $action->label('Select All Employees');
+                    //         return $action;
+                    //     }),
+                    CheckboxList::make('user_ids')
                         ->label('Select Employees')
-                        ->options(User::pluck('name', 'id'))
+                        ->options(User::where('is_employee', 'Yes')->pluck('name', 'id'))
                         ->columns(2)
                         ->required(),
-
-                    Forms\Components\TimePicker::make('time_in')
-                        ->label('Time In')
-                        ->required(),
-
-                    Forms\Components\TimePicker::make('time_out')
-                        ->label('Time Out')
-                        ->required(),
-
+                    
                     Forms\Components\Select::make('work_shift_status')
                         ->label('Work Shift')
                         ->options([
@@ -55,7 +63,23 @@ class ListAttendances extends ListRecords
                             'Overtime' => 'Overtime',
                             'Absent' => 'Absent',
                         ])
-                        ->required(),
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set) {
+                            match ($state) {
+                                'Whole Day' => $set('time_in', '07:30') && $set('time_out', '17:00'),
+                                'Half Day'  => $set('time_in', '07:30') && $set('time_out', '12:00'),
+                                'Overtime'  => $set('time_in', '17:00') && $set('time_out', '22:00'),
+                                'Absent'    => $set('time_in', null) && $set('time_out', null),
+                            };
+                        }),
+
+
+                    Forms\Components\TimePicker::make('time_in')
+                        ->label('Time In'),
+
+                    Forms\Components\TimePicker::make('time_out')
+                        ->label('Time Out'),
+
                 ])
                 ->action(function (array $data) {
                     $period = CarbonPeriod::create($data['start_date'], $data['end_date']);

@@ -24,6 +24,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Columns\Summarizers\Sum;
 use App\Models\User;
 
+
 class AttendanceResource extends Resource
 {
     protected static ?string $model = Attendance::class;
@@ -44,12 +45,14 @@ class AttendanceResource extends Resource
                 Forms\Components\TextInput::make('user_id')
                     ->numeric()
                     ->default(null),
-                Forms\Components\TextInput::make('time_in')
-                    ->required(),
-                Forms\Components\TextInput::make('time_out')
-                    ->required(),
+                Forms\Components\TextInput::make('time_in'),
+                Forms\Components\TextInput::make('time_out'),
                 Forms\Components\TextInput::make('work_shift_status')
                     ->required(),
+                Forms\Components\TextInput::make('total_days')
+                    ->hidden(),
+                Forms\Components\TextInput::make('total_hours')
+                    ->hidden(),
             ]);
     }
 
@@ -60,23 +63,41 @@ class AttendanceResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('date')
                     ->date()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Name')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('time_in')
-                    ->label('Time In'),
+                    ->label('Time In')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('time_out')
-                    ->label('Time Out'),
+                    ->label('Time Out')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('work_shift_status')
-                ->label('Work Shift Status'),
+                    ->label('Work Shift Status')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('total_days')
+                    ->label('Total Days')
+                    ->summarize(Sum::make()->label('Total Days Worked')),
+                Tables\Columns\TextColumn::make('total_hours')
+                    ->label('Total Hours')
+                    ->summarize(Sum::make()->label('Total Overtime/Hours Worked')),
             ])
             ->defaultSort('date','desc')
             ->filters([
