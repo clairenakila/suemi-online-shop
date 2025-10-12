@@ -101,7 +101,32 @@ class AttendanceResource extends Resource
             ])
             ->defaultSort('date','desc')
             ->filters([
-                //
+                Filter::make('date')
+                    ->form([
+                        DatePicker::make('date')
+                            ->label('Date'),
+                    ])
+                    ->query(function ($query, array $data): void {
+                        $query->when(
+                            $data['date'],
+                            fn ($query, $date) => $query->whereDate('date', $date),
+                        );
+                    }),
+                SelectFilter::make('user_id')
+                    ->label('Employee')
+                    ->options(
+                        \App\Models\User::whereIn('id', \App\Models\Attendance::pluck('user_id')->unique())
+                            ->pluck('name', 'id')
+                            ->toArray()
+                    ),
+                 SelectFilter::make('work_shift_status')
+                    ->label('Work Shift Status')
+                    ->options([
+                            'Whole Day' => 'Whole Day',
+                            'Half Day' => 'Half Day',
+                            'Overtime' => 'Overtime',
+                            'Absent' => 'Absent',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
