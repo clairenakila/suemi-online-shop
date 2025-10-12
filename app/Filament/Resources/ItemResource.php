@@ -460,12 +460,6 @@ class ItemResource extends Resource
         ];
     }
 
-    public static function getWidgets(): array
-{
-    return [
-        \App\Filament\Resources\ItemResource\Widgets\ItemSalesSummary::class,
-    ];
-}
 
 
     public static function getPages(): array

@@ -42,12 +42,36 @@ class SalesSummary extends BaseWidget
             ->when($liveSeller, fn($q) => $q->where('live_seller', $liveSeller));
 
 
+        // Returned items query (uses date_returned)
+        $returnedItemsQuery = (clone $query)
+            ->where('is_returned', 'Yes')
+            ->when($start, fn($q) => $q->whereDate('date_returned', '>=', $start))
+            ->when($end, fn($q) => $q->whereDate('date_returned', '<=', $end));
 
         // 🔹 Total Quantity respecting the date filter
-        $totalQuantity = (clone $query)->sum('quantity');
+        $countCleanedItems = (clone $query)->sum('quantity');
 
         $totalCapital = (clone $query)
             ->sum('capital');
+
+        $beforeShoppeeCommission = (clone $query)
+            ->sum('selling_price');
+
+        $shoppeeCommission = (clone $query)
+            ->sum('shoppee_commission');
+        
+        $afterShoppeeCommission = (clone $query)->sum('total_gross_sale');
+
+        $rtsCount = (clone $query)
+            ->where('is_returned', 'Yes')
+            ->sum('quantity');
+
+        $rtsAmount = (clone $query)
+            ->where('is_returned', 'Yes')
+            ->sum('selling_price');
+        
+        $totalSale = $afterShoppeeCommission - $rtsAmount;
+
 
         return [
             // Stat::make('Total Items', $query->count())
@@ -55,14 +79,39 @@ class SalesSummary extends BaseWidget
             //     ->color('success')
             //     ->chart([1, 2, 3, 7, 3]),
 
-            Stat::make('', $totalQuantity)
-                ->description('Total Cleaned Bags')
+            Stat::make('', $countCleanedItems . ' pcs.')
+                ->description('Count of Cleaned Items')
                 ->color('primary')
                 ->chart([2, 5, 3, 6, 4]),
             Stat::make('',  '₱' . number_format($totalCapital, 2))
                 ->description('Total Capital')
                 ->color('primary')
                 ->chart([2, 5, 3, 6, 4]),
+             Stat::make('',  '₱' . number_format($beforeShoppeeCommission, 2))
+                ->description('Total Sales Before Shoppee Commission')
+                ->color('primary')
+                ->chart([2, 5, 3, 6, 4]),
+            Stat::make('',  '₱' . number_format($shoppeeCommission, 2))
+                ->description('Shoppee Commission')
+                ->color('primary')
+                ->chart([2, 5, 3, 6, 4]),
+            Stat::make('',  '₱' . number_format($afterShoppeeCommission, 2))
+                ->description('Total Sales After Shoppee Commission')
+                ->color('primary')
+                ->chart([2, 5, 3, 6, 4]),
+            Stat::make('',$rtsCount .' pcs.')
+                ->description('Count of Returned Items')
+                ->color('danger')
+                ->chart([2, 5, 3, 6, 4]),
+            Stat::make('',  '₱' . number_format($rtsAmount))
+                ->description('Total Amount for Returned Items')
+                ->color('danger')
+                ->chart([2, 5, 3, 6, 4]),
+            Stat::make('',  '₱' . number_format($totalSale))
+                ->description('Total Sales (Deducted na sa Total Amount for Returned Items)')
+                ->color('success')
+                ->chart([2, 5, 3, 6, 4]),
+            
         ];
     }
 }

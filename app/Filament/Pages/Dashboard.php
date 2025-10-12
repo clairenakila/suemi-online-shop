@@ -22,6 +22,12 @@ class Dashboard extends \Filament\Pages\Dashboard
 {
     use HasFiltersForm;
 
+    protected static ?string $modelLabel = 'Reports';
+    // protected static ?string $pluralModelLabel = 'Reports';
+
+    protected static ?string $navigationLabel = 'Dashboard';
+    protected static bool $isLazy = false;
+
     public function getColumns(): int
     {
         return 3;

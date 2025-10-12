@@ -32,7 +32,7 @@ class AttendanceResource extends Resource
      protected static ?string $navigationGroup = 'Payroll Management';
     protected static ?string $navigationLabel = 'Attendance';
     protected static bool $isLazy = false;
-      protected static ?string $modelLabel = 'Attendance';
+    protected static ?string $modelLabel = 'Attendance';
     protected static ?string $pluralModelLabel = 'Attendance';
 
     public static function form(Form $form): Form

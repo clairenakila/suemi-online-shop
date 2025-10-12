@@ -18,13 +18,7 @@ class ListItems extends ListRecords
 {
     protected static string $resource = ItemResource::class;
 
-    protected function getHeaderWidgets(): array
-{
-    return [
-        \App\Filament\Resources\ItemResource\Widgets\ItemSalesSummary::class,
-    ];
-}
-
+   
     protected function getHeaderActions(): array
     {
         $user = auth()->user();
@@ -65,7 +59,7 @@ class ListItems extends ListRecords
     // ✅ Count items where is_returned = Yes
     protected function returnedItems(): int
     {
-        return Item::where('is_returned', 'Yes')->count();
+        return Item::where('is_returned', 'Yes')->sum('quantity');
     }
 
     // ✅ Tabs for Filament
