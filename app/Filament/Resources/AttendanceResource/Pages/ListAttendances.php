@@ -56,7 +56,7 @@ class ListAttendances extends ListRecords
                         ->required(),
                     
                     Forms\Components\Select::make('work_shift_status')
-                        ->label('Work Shift')
+                        ->label('Work Shift status')
                         ->options([
                             'Whole Day' => 'Whole Day',
                             'Half Day' => 'Half Day',

@@ -110,12 +110,108 @@ class AttendanceResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->slideOver(),
-                ]),
+                    Tables\Actions\BulkAction::make('bulk_update')
+                    ->label('Bulk Update')
+                    ->slideOver()
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('secondary')
+                    ->requiresConfirmation()
+                    ->modalIcon('heroicon-o-pencil-square')
+                    ->modalHeading('Bulk Update Attendance Details')
+                    ->modalDescription('Select the fields you want to update.')
+                    ->form(function (Forms\Form $form) {
+                return $form->schema([
+                    // Select columns to update    
+                    Forms\Components\CheckboxList::make('fields_to_update')
+                        ->label('Select fields to update.')
+                        ->options([
+                            'date'=>'Date',
+                            'work_shift_status' => 'Work Shift Status',
+                            'time_in' => 'Time In',
+                            'time_out' => 'Time Out',
+                           
+                        ])
+                        ->columns(1)
+                        ->reactive(), 
+                    Forms\Components\DateTimePicker::make('date')
+                        ->label('Date')
+                        ->visible(fn ($get) => in_array('date', $get('fields_to_update') ?? [])) 
+                        ->required(fn ($get) => in_array('date', $get('fields_to_update') ?? [])),
+                    
+                    Forms\Components\Select::make('work_shift_status')
+                        ->label('Work Shift Status')
+                        ->options([
+                            'Whole Day' => 'Whole Day',
+                            'Half Day' => 'Half Day',
+                            'Overtime' => 'Overtime',
+                            'Absent' => 'Absent',
+                        ])
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set) {
+                            match ($state) {
+                                'Whole Day' => $set('time_in', '07:30') && $set('time_out', '17:00'),
+                                'Half Day'  => $set('time_in', '07:30') && $set('time_out', '12:00'),
+                                'Overtime'  => $set('time_in', '17:00') && $set('time_out', '22:00'),
+                                'Absent'    => $set('time_in', null) && $set('time_out', null),
+                            };
+                        })
+                        ->visible(fn ($get) => in_array('work_shift_status', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('work_shift_status', $get('fields_to_update') ?? [])),
+                    Forms\Components\TimePicker::make('time_in')
+                        ->label('Time In')
+                        ->visible(fn ($get) => in_array('time_in', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('time_in', $get('fields_to_update') ?? [])),
+                    Forms\Components\TimePicker::make('time_out')
+                        ->label('Time Out')
+                        ->visible(fn ($get) => in_array('time_out', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('time_out', $get('fields_to_update') ?? [])),
+                    
+                ]);
+            })
+            ->action(function (array $data, $records) {
+                foreach ($records as $record) {
+                    $updateData = [];
+
+                    if (in_array('date', $data['fields_to_update'])) {
+                        $updateData['date'] = $data['date'];
+                    }      
+                    if (in_array('work_shift_status', $data['fields_to_update'])) {
+                        $updateData['work_shift_status'] = $data['work_shift_status'];
+                    }
+                    if (in_array('time_in', $data['fields_to_update'])) {
+                        $updateData['time_in'] = $data['time_in'];
+                    }
+                    if (in_array('time_out', $data['fields_to_update'])) {
+                        $updateData['time_out'] = $data['time_out'];
+                    }
+                   
+                    
+                    if (!empty($updateData)) {
+                            $record->update($updateData); // ✅ Actually updates the record
+                        }
+                    }
+        
+                \Filament\Notifications\Notification::make()
+                    ->title('Attendance updated successfully!')
+                    ->success()
+                    ->color('secondary')
+                    ->send();
+            }),
+                ExportBulkAction::make()
+                    ->label('Export Selected')
+                    ->color('success')   
+                    ->icon('heroicon-o-arrow-down-tray')
+                        ->exports([
+                            \pxlrbt\FilamentExcel\Exports\ExcelExport::make('Attendance')
+                                ->fromTable()
+                                ->withFilename('Attendance.xlsx'),
+                        ]),
+                 Tables\Actions\DeleteBulkAction::make()
+                 ->slideOver(),
+
+                ])
             ]);
     }
-
     public static function getRelations(): array
     {
         return [
