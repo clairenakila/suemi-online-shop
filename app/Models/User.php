@@ -38,7 +38,8 @@ class User extends Authenticatable
         'hourly_rate',
         'daily_rate',
         'signature',
-        'is_live_seller'
+        'is_live_seller',
+        'is_employee',
 
     ];
 

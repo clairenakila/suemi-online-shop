@@ -33,9 +33,9 @@ class Dashboard extends \Filament\Pages\Dashboard
             DatePicker::make('endDate'),
             //Toggle::make('active'),
             Select::make('user_id')
-                    ->label('User')
+                    ->label('Prepared By')
                     ->options(User::pluck('name', 'id'))
-                    ->placeholder('All Users')
+                    ->placeholder('All users')
                     ->reactive(),
         ])->columns(3);
     }

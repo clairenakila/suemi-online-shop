@@ -53,6 +53,7 @@ class UserResource extends Resource
             // Password for create only
             Forms\Components\TextInput::make('password')
                 ->password()
+                ->revealable()
                 ->required(fn (string $context): bool => $context === 'create')
                 ->disabled(fn (string $context): bool => $context === 'edit')
                 ->maxLength(255)
@@ -61,7 +62,14 @@ class UserResource extends Resource
                         ? bcrypt($state)
                         : $record->password
                 ),
-
+            Forms\Components\Select::make('is_employee')
+                ->label('Is Employee')
+                ->default('No')
+                ->options([
+                    'Yes' => 'Yes',
+                    'No'  => 'No',
+                ])
+                ->required(),
             Forms\Components\Select::make('is_live_seller')
                 ->label('Is Live Seller')
                 ->default('No')
@@ -134,6 +142,15 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('contact_number')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('is_employee')
+                    ->label('Is Employee?')
+                    ->searchable()
+                    ->badge()
+                    ->color(fn (string $state): string => match (strtolower($state)) {
+                            'yes' => 'success',
+                            'no' => 'danger',
+                        })
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('is_live_seller')
                     ->label('Is Live Seller?')
                     ->searchable()
@@ -143,6 +160,7 @@ class UserResource extends Resource
                             'no' => 'danger',
                         })
                     ->toggleable(isToggledHiddenByDefault: false),
+                
                 Tables\Columns\TextColumn::make('password')
                     ->label('Password')
                     ->limit(10)
@@ -213,6 +231,8 @@ class UserResource extends Resource
                             'role_id' => 'Role',
                             'hourly_rate' => 'Hourly Rate',
                             'daily_rate' => 'Daily Rate',
+                            'is_employee' => 'Is Employee',
+                            'is_live_seller' => 'Is Live Seller'
                         ])
                         ->columns(1)
                         ->reactive(), 
@@ -229,6 +249,27 @@ class UserResource extends Resource
                         ->label('Daily Rate')
                         ->visible(fn ($get) => in_array('daily_rate', $get('fields_to_update') ?? []))
                         ->required(fn ($get) => in_array('daily_rate', $get('fields_to_update') ?? [])),
+
+                     Forms\Components\Select::make('is_employee')
+                        ->label('Is Employee')
+                        ->default('Yes')
+                        ->options([
+                            'Yes' => 'Yes',
+                            'No'  => 'No',
+                        ])
+                        ->visible(fn ($get) => in_array('is_employee', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('is_employee', $get('fields_to_update') ?? [])),
+                    Forms\Components\Select::make('is_live_seller')
+                        ->label('Is Live Seller')
+                        ->default('Yes')
+                        ->options([
+                            'Yes' => 'Yes',
+                            'No'  => 'No',
+                        ])
+                        ->visible(fn ($get) => in_array('is_live_seller', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('is_live_seller', $get('fields_to_update') ?? [])),
+
+
                 ]);
             })
             ->action(function (array $data, $records) {
@@ -243,6 +284,12 @@ class UserResource extends Resource
                     }
                     if (in_array('daily_rate', $data['fields_to_update'])) {
                         $updateData['daily_rate'] = $data['daily_rate'];
+                    }
+                    if (in_array('is_employee', $data['fields_to_update'])) {
+                        $updateData['is_employee'] = $data['is_employee'];
+                    }
+                    if (in_array('is_live_seller', $data['fields_to_update'])) {
+                        $updateData['is_live_seller'] = $data['is_live_seller'];
                     }
         
                     $record->update($updateData);   

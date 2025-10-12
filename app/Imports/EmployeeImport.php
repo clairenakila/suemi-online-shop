@@ -71,7 +71,10 @@ class EmployeeImport implements ToModel, WithHeadingRow
         'pagibig_number' => $row['pagibig_number'] ?? null,
         'philhealth_number' => $row['philhealth_number'] ?? null,
         'hourly_rate' => $row['hourly_rate'] ?? null,
-        'daily_rate' => $row['dailty_rate'] ?? null,
+        'daily_rate' => $row['daily_rate'] ?? null,
+        'is_live_seller' => $row['is_live_seller'] ?? null,
+        'is_employee' => $row['is_employee'] ?? 'No',
+
     ];
 
     return new User($data);
