@@ -31,12 +31,16 @@ class SalesSummary extends BaseWidget
         $start = $this->filters['startDate'] ?? null;
         $end = $this->filters['endDate'] ?? null;
         $userId = $this->filters['user_id'] ?? null;
+        $liveSeller = $this->filters['live_seller'] ?? null;
+
 
 
         $query = Item::query()
             ->when($start, fn($q) => $q->whereDate('created_at', '>=', $start))
             ->when($end, fn($q) => $q->whereDate('created_at', '<=', $end))
-            ->when($userId, fn($q) => $q->where('user_id', $userId));
+            ->when($userId, fn($q) => $q->where('user_id', $userId))
+            ->when($liveSeller, fn($q) => $q->where('live_seller', $liveSeller));
+
 
 
         // 🔹 Total Quantity respecting the date filter
