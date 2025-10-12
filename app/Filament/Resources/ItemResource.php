@@ -147,6 +147,10 @@ class ItemResource extends Resource
                     ->searchable()
                     ->numeric()
                     ->sortable(),
+                  Tables\Columns\TextColumn::make('live_seller')
+                    ->label('Live Seller')
+                    ->searchable(),      
+                
                 Tables\Columns\TextColumn::make('quantity')
                     ->numeric()
                     ->searchable()
@@ -169,15 +173,15 @@ class ItemResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->summarize(Sum::make()->label('Total Shoppee Commission (21%)')->money('PHP')),
+                
+                    
                 Tables\Columns\TextColumn::make('total_gross_sale')
                     ->label('Total Gross Sale')
                     ->numeric()
                     ->searchable()
                     ->sortable()
                     ->summarize(Sum::make()->label('Total Gross Sale')->money('PHP')),
-                Tables\Columns\TextColumn::make('live_seller')
-                    ->label('Live Seller')
-                    ->searchable(),                                   
+                
                 Tables\Columns\TextColumn::make('is_returned')
                     ->label('Is Returned')
                     ->badge()
@@ -253,6 +257,36 @@ class ItemResource extends Resource
                 ->label(''),
             ], position: ActionsPosition::BeforeCells) 
             ->bulkActions([
+                Tables\Actions\BulkAction::make('mark_as_returned')
+                    ->label('Mark as Returned')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('primary')
+                    ->slideOver()
+                    ->modalHeading('Mark Items as Returned')
+                    ->modalDescription('Please provide the shipment and return dates.')
+                    ->form([
+                        Forms\Components\DatePicker::make('date_shipped')
+                            ->label('Date Shipped')
+                            ->required(),
+                        Forms\Components\DatePicker::make('date_returned')
+                            ->label('Date Returned')
+                            ->required(),
+                    ])
+                    ->action(function (array $data, $records): void {
+                        foreach ($records as $record) {
+                            $record->update([
+                                'is_returned' => 'Yes',
+                                'date_shipped' => $data['date_shipped'],
+                                'date_returned' => $data['date_returned'],
+                            ]);
+                        }
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Selected items marked as returned!')
+                            ->success()
+                            ->send();
+                    }),
+
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\BulkAction::make('bulk_update')
                     ->label('Bulk Update')
