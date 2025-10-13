@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Filament\Payslips;
+
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -9,4 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect('suemionlineshop/login');
 });
+
+Route::get('/payslips', Payslips::class)->name('payslip.view');
+
 
