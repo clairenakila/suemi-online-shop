@@ -84,14 +84,29 @@
                 <td class="border text-center px-1 py-0.5">{{ $user->daily_rate !== null ? '₱' . number_format($user->daily_rate,2) : 'N/A' }}</td>
               </tr>
               <tr>
+
                 <td colspan="4" class="border px-1 py-0.5">
+                    
                   Total Daily Pay = 
                   {{ $user->daily_rate !== null ? '₱' . number_format($totalDays * $user->daily_rate, 2) : 'N/A' }}
                   <br>
                   Total Overtime Pay =
                   {{ $user->hourly_rate !== null ? '₱' . number_format($totalHours * $user->hourly_rate, 2) : 'N/A' }} 
                   <br>
-                  Commission: 11 items * ₱12 = ₱1200
+                  Commission: 
+                <!-- 11 items times ₱12 = ₱1200 -->
+                  @if(count($commissions) > 0)
+                        <ul class="list-disc list-inside">
+                            @foreach($commissions as $c)
+                                <li>
+                                    {{ $c['description'] }}: {{ $c['quantity'] }} × ₱{{ number_format($c['price'], 2) }} = ₱{{ number_format($c['total'], 2) }}
+                                </li>
+                            @endforeach
+                        </ul>
+                        <strong>Total Commission: ₱{{ number_format($totalCommission, 2) }}</strong>
+                    @else
+                        N/A
+                    @endif
                 </td>
               </tr>
             </tbody>
