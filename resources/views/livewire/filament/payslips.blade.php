@@ -40,26 +40,26 @@
         <!-- Employee Info -->
         <div class="grid grid-cols-2 border border-gray-200 text-xs w-full md:w-3/4">
           <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Name:</div>
-          <div class="px-1 py-0.5 border-b border-gray-300">Claire</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">{{ $user->name ?? 'N/A' }}</div>
           <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Email:</div>
-          <div class="px-1 py-0.5 border-b border-gray-300">claire@gmail.com</div>
-          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Contact:</div>
-          <div class="px-1 py-0.5 border-b border-gray-300">09918895966</div>
-          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">SSS:</div>
-          <div class="px-1 py-0.5 border-b border-gray-300">sss</div>
-          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Philhealth:</div>
-          <div class="px-1 py-0.5 border-b border-gray-300">none</div>
-          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Pag-IBIG:</div>
-          <div class="px-1 py-0.5 border-b border-gray-300">none</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">{{ $user->email ?? 'N/A' }}</div>
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Contact Number:</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">{{ $user->contact_number ?? 'N/A' }}</div>
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">SSS No.:</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">{{ $user->sss_number ?? 'N/A' }}</div>
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Philhealth No.:</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">{{ $user->philhealth_number ?? 'N/A' }}</div>
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Pag-IBIG No.:</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">{{ $user->pagibig_number ?? 'N/A' }}</div>
         </div>
         <!-- Salary Info -->
         <div class="grid grid-cols-2 border border-gray-200 text-xs w-full md:w-1/4">
           <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Designation:</div>
-          <div class="px-1 py-0.5 border-b border-gray-300">Admin</div>
-          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Pay Start:</div>
-          <div class="px-1 py-0.5 border-b border-gray-300">Oct 1, 2025</div>
-          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Pay End:</div>
-          <div class="px-1 py-0.5 border-b border-gray-300">Oct 15, 2025</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">{{ $user->role->name ?? 'N/A' }}</div>
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Pay Period (Start):</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">{{ \Carbon\Carbon::parse($startDate)->format('M d, Y') ?? 'N/A' }}</div>
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Pay Period (End):</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">{{ \Carbon\Carbon::parse($endDate)->format('M d, Y') ?? 'N/A' }}</div>
         </div>
       </div>
 
@@ -70,18 +70,18 @@
           <table class="w-full border border-gray-300 text-xs">
             <thead class="bg-gray-100">
               <tr>
-                <th class="border px-1 py-0.5">OT/HRS</th>
-                <th class="border px-1 py-0.5">DAYS</th>
-                <th class="border px-1 py-0.5">HR RATE</th>
-                <th class="border px-1 py-0.5">DAY RATE</th>
+                <th class="border px-1 py-0.5">TOTAL OVERTIME/HOURS WORKED</th>
+                <th class="border px-1 py-0.5">TOTAL DAYS WORKED</th>
+                <th class="border px-1 py-0.5">HOURLY RATE</th>
+                <th class="border px-1 py-0.5">DAILY RATE</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="border text-center px-1 py-0.5">10</td>
-                <td class="border text-center px-1 py-0.5">11</td>
-                <td class="border text-center px-1 py-0.5">12</td>
-                <td class="border text-center px-1 py-0.5">₱13</td>
+                <td class="border text-center px-1 py-0.5">{{ $totalHours }}</td>
+                <td class="border text-center px-1 py-0.5">{{ $totalDays }}</td>
+                <td class="border text-center px-1 py-0.5"> {{ $user->hourly_rate !== null ? '₱' . number_format($user->hourly_rate) : 'N/A' }}</td>
+                <td class="border text-center px-1 py-0.5">{{ $user->daily_rate !== null ? '₱' . number_format($user->daily_rate) : 'N/A' }}</td>
               </tr>
               <tr>
                 <td colspan="4" class="border px-1 py-0.5">

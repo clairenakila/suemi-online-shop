@@ -70,3 +70,7 @@ php artisan migrate:rollback --path=/database/migrations/2025_10_08_071814_creat
 //livewire
 app/Livewire/Filament/Counter.php
 resources/views/livewire/filament/counter.blade.php
+
+//
+npm cache clean --force
+rm -rf node_modules package-lock.json

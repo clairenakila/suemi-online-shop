@@ -148,59 +148,33 @@ class AttendanceResource extends Resource
                 ->icon('heroicon-o-printer')
                 ->slideOver()
                 ->color('primary')
-                ->requiresConfirmation()
-                ->modalHeading('Print Payslip')
-                ->modalDescription(function ($records, $action) {
-                    // Get date filters from the Livewire table instance
-                    $filters = $action->getLivewire()->tableFilters;
+                 ->requiresConfirmation()
+    ->action(function (array $data, $records, Tables\Actions\BulkAction $action) {
+        $filters = $action->getLivewire()->tableFilters;
+        $startDate = $filters['date_range']['start_date'] ?? null;
+        $endDate   = $filters['date_range']['end_date'] ?? null;
 
-                    $startDate = $filters['date_range']['start_date'] ?? null;
-                    $endDate   = $filters['date_range']['end_date'] ?? null;
+        if (!$startDate || !$endDate) {
+            \Filament\Notifications\Notification::make()
+                ->title('Please select a start and end date first.')
+                ->warning()
+                ->send();
+            return;
+        }
 
-                    // Collect employee names from selected records
-                    $names = $records
-                        ->pluck('user.name')
-                        ->unique()
-                        ->implode(', ');
+        $userIds = $records->pluck('user_id')->unique();
 
-                    // Fallback if no date range set
-                    if (!$startDate || !$endDate) {
-                        return "Generate and print payslips for {$names} (please select a start and end date first).";
-                    }
+        // For now, only handle the first user (can loop if needed)
+        $userId = $userIds->first();
 
-                    // Format nicely
-                    $formattedStart = \Carbon\Carbon::parse($startDate)->format('M d, Y');
-                    $formattedEnd = \Carbon\Carbon::parse($endDate)->format('M d, Y');
+        $url = route('payslip.view', [
+            'user_id' => $userId,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+        ]);
 
-                    return "Generate and print payslips for {$names} from {$formattedStart} to {$formattedEnd}.";
-                })
-                ->action(function (array $data, $records, Tables\Actions\BulkAction $action) {
-                    $filters = $action->getLivewire()->tableFilters;
-                    $startDate = $filters['date_range']['start_date'] ?? null;
-                    $endDate   = $filters['date_range']['end_date'] ?? null;
-
-                    if (!$startDate || !$endDate) {
-                        \Filament\Notifications\Notification::make()
-                            ->title('Please select a start and end date first.')
-                            ->warning()
-                            ->send();
-                        return;
-                    }
-
-                    // Handle each selected employee
-                    $userIds = $records->pluck('user_id')->unique();
-
-                    foreach ($userIds as $userId) {
-                        $url = route('payslip.view', [
-                            'user_id' => $userId,
-                            'start_date' => $startDate,
-                            'end_date' => $endDate,
-                        ]);
-
-                        // Redirect to new tab
-                        return redirect()->away($url);
-                    }
-                }),
+        return redirect()->away($url);
+    }),
 
 
                 Tables\Actions\BulkActionGroup::make([

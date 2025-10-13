@@ -12,6 +12,8 @@ Route::get('/', function () {
     return redirect('suemionlineshop/login');
 });
 
-Route::get('/payslips', Payslips::class)->name('payslip.view');
+// Route::get('/payslips', Payslips::class)->name('payslip.view');
 
+Route::get('/payslips/{user_id}/{start_date}/{end_date}', Payslips::class)
+    ->name('payslip.view');
 
