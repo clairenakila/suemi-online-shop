@@ -89,15 +89,15 @@
                     Total Daily Pay = {{ $user->daily_rate !== null ? '₱' . number_format($totalDays * $user->daily_rate, 2) : 'N/A' }}<br>
                     Total Overtime Pay = {{ $user->hourly_rate !== null ? '₱' . number_format($totalHours * $user->hourly_rate, 2) : 'N/A' }}<br>
                     Commission:
-                    <ul id="commissionList{{ $i }}" class="list-disc list-inside">
-                      @if(count($commissions) > 0)
-                        @foreach($commissions as $c)
-                          <li>{{ $c['description'] }}: {{ $c['quantity'] }} × ₱{{ number_format($c['price'], 2) }} = ₱{{ number_format($c['total'], 2) }}</li>
-                        @endforeach
-                      @else
-                        <li>N/A</li>
-                      @endif
-                    </ul>
+              <div id="commissionList{{ $i }}" class="whitespace-pre ml-5">
+    @if(count($commissions) > 0)
+        @foreach($commissions as $c)
+            {{ $c['quantity'] }} pcs. {{ $c['description'] }} X ₱{{ number_format($c['price'], 2) }} = ₱{{ number_format($c['total'], 2) }}<br>
+        @endforeach
+    @else
+        N/A
+    @endif
+</div>
                     <strong>Total Commission: ₱<span id="totalCommission{{ $i }}">{{ isset($totalCommission) ? number_format($totalCommission,2) : '0.00' }}</span></strong>
                   </td>
                 </tr>
@@ -190,7 +190,7 @@
         const list = document.getElementById('commissionList' + i);
         list.innerHTML = commissions.length
           ? commissions.map(c =>
-              `<li>${c.description}: ${c.quantity} × ₱${c.price.toFixed(2)} = ₱${c.total.toFixed(2)}</li>`
+   `${c.quantity} pcs. ${c.description} X ₱${c.price.toFixed(2)} each = ₱${c.total.toFixed(2)}<br>`
             ).join('')
           : '<li>N/A</li>';
 
