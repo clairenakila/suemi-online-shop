@@ -78,8 +78,8 @@
             </thead>
             <tbody>
               <tr>
-                <td class="border text-center px-1 py-0.5">{{ $totalHours }}</td>
-                <td class="border text-center px-1 py-0.5">{{ $totalDays }}</td>
+                <td class="border text-center px-1 py-0.5">{{ $totalHours ?? 0 }}</td>
+                <td class="border text-center px-1 py-0.5">{{ $totalDays ?? 0 }}</td>
                 <td class="border text-center px-1 py-0.5"> {{ $user->hourly_rate !== null ? '₱' . number_format($user->hourly_rate) : 'N/A' }}</td>
                 <td class="border text-center px-1 py-0.5">{{ $user->daily_rate !== null ? '₱' . number_format($user->daily_rate) : 'N/A' }}</td>
               </tr>
@@ -119,18 +119,18 @@
       <div class="grid grid-cols-3 mt-2 text-center text-xs gap-1">
         <div class="flex flex-col items-center">
           <img src="{{ asset('images/signature.png') }}" class="h-6 mb-0">
-          <span class="font-bold underline">CLAIRE NAKILA</span>
-          <span>Employee</span>
+          <span class="font-bold underline uppercase">{{ $user->name ?? 'N/A' }}</span>
+          <span>Employee Overprinted Name</span>
         </div>
         <div class="flex flex-col items-center">
           <img src="{{ asset('images/signature.png') }}" class="h-6 mb-0">
-          <span class="font-bold underline">CLAIRE NAKILA</span>
+          <span class="font-bold underline">SUE LAPIDEZ</span>
           <span>Prepared By</span>
         </div>
         <div class="flex flex-col items-center">
           <img src="{{ asset('images/signature.png') }}" class="h-6 mb-0">
-          <span class="font-bold underline">CLAIRE NAKILA</span>
-          <span>Employer</span>
+          <span class="font-bold underline">MICHAEL LAPIDEZ</span>
+          <span>Employer Overprinted Name</span>
         </div>
       </div>
     </div>
