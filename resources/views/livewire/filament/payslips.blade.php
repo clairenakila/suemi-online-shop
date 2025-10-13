@@ -178,31 +178,30 @@
     </div>
 
 <!-- Signatures -->
+<!-- Signatures -->
 <div class="grid grid-cols-3 mt-20 text-center text-sm text-gray-600">
   <!-- Employee -->
-  <div class="flex flex-col items-center gap-1">
-    <img src="{{ asset('images/employee-signature.png') }}" alt="Employee Signature" class="h-12">
-    <span class="leading-none font-bold mb-0">CLAIRE NAKILA</span>
-    <span class="leading-none">________________________________</span>
-    <span class="mt-0">EMPLOYEE OVERPRINTED NAME</span>
+  <div class="flex flex-col items-center">
+    <img src="{{ asset('images/signature.png') }}" alt="Employee Signature" class="h-11 mb-0">
+    <span class="font-bold underline leading-tight">____CLAIRE NAKILA____</span>
+    <span class="text-xs mt-0">Employee Overprinted Name</span>
   </div>
 
   <!-- Prepared By -->
-  <div class="flex flex-col items-center gap-1">
-    <img src="{{ asset('images/prepared-by-signature.png') }}" alt="Prepared By Signature" class="h-12">
-    <span class="leading-none font-bold">CLAIRE NAKILA</span>
-    <span class="leading-none">________________________________</span>
-    <span class="mt-1">PREPARED BY</span>
+  <div class="flex flex-col items-center">
+    <img src="{{ asset('images/signature.png') }}" alt="Prepared By Signature" class="h-11 mb-0">
+    <span class="font-bold underline leading-tight">____CLAIRE NAKILA____</span>
+    <span class="text-xs mt-0">Prepared By</span>
   </div>
 
   <!-- Employer -->
-  <div class="flex flex-col items-center gap-1">
-    <img src="{{ asset('images/signature.png') }}" alt="Employer Signature" class="h-12">
-    <span class="leading-none font-bold">CLAIRE NAKILA</span>
-    <span class="">________________________________</span>
-    <span class="mt-1">EMPLOYER OVERPRINTED NAME</span>
+  <div class="flex flex-col items-center">
+    <img src="{{ asset('images/signature.png') }}" alt="Employer Signature" class="h-11 mb-0">
+    <span class="font-bold underline leading-tight">____CLAIRE NAKILA____</span>
+    <span class="text-xs mt-0">Employer Overprinted Name</span>
   </div>
 </div>
+
 
 
 
