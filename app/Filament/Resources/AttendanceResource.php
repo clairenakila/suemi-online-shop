@@ -101,17 +101,37 @@ class AttendanceResource extends Resource
             ])
             ->defaultSort('date','desc')
             ->filters([
-                Filter::make('date')
-                    ->form([
-                        DatePicker::make('date')
-                            ->label('Date'),
-                    ])
-                    ->query(function ($query, array $data): void {
-                        $query->when(
-                            $data['date'],
-                            fn ($query, $date) => $query->whereDate('date', $date),
-                        );
-                    }),
+                // Filter::make('date')
+                //     ->form([
+                //         DatePicker::make('date')
+                //             ->label('Date'),
+                //     ])
+                //     ->query(function ($query, array $data): void {
+                //         $query->when(
+                //             $data['date'],
+                //             fn ($query, $date) => $query->whereDate('date', $date),
+                //         );
+                //     }),
+
+                 Filter::make('date_range')
+        ->label('Filter by Date Range')
+        ->form([
+            DatePicker::make('start_date')->label('Start Date')->native(false)->closeOnDateSelection(),
+            DatePicker::make('end_date')->label('End Date')->native(false)->closeOnDateSelection(),
+        ])
+        ->query(function (Builder $query, array $data): Builder {
+            return $query
+                ->when($data['start_date'], fn ($q, $date) => $q->whereDate('date', '>=', $date))
+                ->when($data['end_date'], fn ($q, $date) => $q->whereDate('date', '<=', $date));
+        })
+        ->indicateUsing(function (array $data): array {
+            $indicators = [];
+            if ($data['start_date'] ?? null) $indicators['start_date'] = 'Start: ' . $data['start_date'];
+            if ($data['end_date'] ?? null) $indicators['end_date'] = 'End: ' . $data['end_date'];
+            return $indicators;
+        }),
+
+        
                 SelectFilter::make('user_id')
                     ->label('Employee')
                     ->options(
