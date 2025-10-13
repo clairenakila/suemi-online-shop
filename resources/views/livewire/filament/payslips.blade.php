@@ -80,13 +80,17 @@
               <tr>
                 <td class="border text-center px-1 py-0.5">{{ $totalHours ?? 0 }}</td>
                 <td class="border text-center px-1 py-0.5">{{ $totalDays ?? 0 }}</td>
-                <td class="border text-center px-1 py-0.5"> {{ $user->hourly_rate !== null ? '₱' . number_format($user->hourly_rate) : 'N/A' }}</td>
-                <td class="border text-center px-1 py-0.5">{{ $user->daily_rate !== null ? '₱' . number_format($user->daily_rate) : 'N/A' }}</td>
+                <td class="border text-center px-1 py-0.5"> {{ $user->hourly_rate !== null ? '₱' . number_format($user->hourly_rate,2) : 'N/A' }}</td>
+                <td class="border text-center px-1 py-0.5">{{ $user->daily_rate !== null ? '₱' . number_format($user->daily_rate,2) : 'N/A' }}</td>
               </tr>
               <tr>
                 <td colspan="4" class="border px-1 py-0.5">
-                  Total Daily Pay = ₱100<br>
-                  Total Overtime = ₱100<br>
+                  Total Daily Pay = 
+                  {{ $user->daily_rate !== null ? '₱' . number_format($totalDays * $user->daily_rate, 2) : 'N/A' }}
+                  <br>
+                  Total Overtime Pay =
+                  {{ $user->hourly_rate !== null ? '₱' . number_format($totalHours * $user->hourly_rate, 2) : 'N/A' }} 
+                  <br>
                   Commission: 11 items * ₱12 = ₱1200
                 </td>
               </tr>
