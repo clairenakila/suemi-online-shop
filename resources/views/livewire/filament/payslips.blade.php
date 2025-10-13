@@ -6,165 +6,135 @@
   @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-200 flex justify-center items-start py-5">
-  <!-- A4 Paper Container -->
-  <div class="bg-white w-full max-w-[800px] p-4 md:p-6 shadow-lg flex flex-col">
-    <!-- Header -->
-    <div class="bg-pink-200 p-4">
-      <div class="flex flex-col md:flex-row justify-between items-end">
+  <!-- Bondpaper Container -->
+  <div class="bg-white w-full max-w-[800px] p-2 shadow-lg flex flex-col space-y-4">
+
+    <!-- Repeat Payslip Twice -->
+    @for ($i = 0; $i < 2; $i++)
+    <div class="border border-gray-300 p-2 md:p-4 flex flex-col text-xs md:text-sm">
+      <!-- Header -->
+      <div class="bg-pink-200 p-2 flex justify-between items-end">
         <div>
-          <h1 class="text-xl md:text-2xl font-bold text-gray-800">Suemi Online Shop</h1>
-          <p class="text-xs text-gray-600 mt-1 leading-tight">
+          <h1 class="text-sm md:text-base font-bold text-gray-800">Suemi Online Shop</h1>
+          <p class="text-[9px] md:text-xs text-gray-600 leading-tight">
             BLK 9 L5 Calliandra 2 Phase 1 Greenwoods<br>
             Executive Village Paliparan 1 Dasmariñas Cavite<br>
             facebook.com/suemishop | 09151772074
           </p>
         </div>
-        <div class="text-2xl md:text-3xl font-bold text-gray-800 tracking-wider mt-2 md:mt-0">
+        <div class="text-lg md:text-xl font-bold text-gray-800 tracking-wider">
           P A Y S L I P
         </div>
       </div>
-    </div>
-    <div class="bg-gray-800 h-1 md:h-[0.3in]"></div>
+      <div class="bg-gray-800 h-[2px] my-1"></div>
 
-    <!-- Gross / Deductions / Net Pay -->
-    <div class="text-right mt-2 mr-2 md:mr-5 space-y-1">
-      <p class="text-sm font-bold">
-        <span class="font-semibold">Gross Pay:</span> ₱1000
-      </p>
-      <p class="text-sm font-bold text-red-600">
-        <span class="font-semibold">Total Deductions:</span> - ₱1000
-      </p>
-      <p class="text-xl md:text-2xl font-bold">
-        <span class="font-semibold">Net Pay:</span> ₱100
-      </p>
-    </div>
-
-    <!-- Employee Details -->
-    <p class="text-lg md:text-xl font-bold mt-4 ml-2 md:ml-3"><span class="font-semibold">Employee Details:</span></p>
-    <div class="flex flex-col md:flex-row gap-4 mb-6 w-full">
-      <!-- Employee Info -->
-      <div class="grid grid-cols-2 gap-0 border border-gray-200 shadow-md rounded-none bg-white w-full md:w-3/4 text-sm">
-        <div class="bg-gray-100 px-2 py-1 border-b border-gray-300">Employee Name:</div>
-        <div class="px-2 py-1 border-b border-gray-300">Claire</div>
-        <div class="bg-gray-100 px-2 py-1 border-b border-gray-300">Email:</div>
-        <div class="px-2 py-1 border-b border-gray-300">claire@gmail.com</div>
-        <div class="bg-gray-100 px-2 py-1 border-b border-gray-300">Contact No:</div>
-        <div class="px-2 py-1 border-b border-gray-300">09918895966</div>
-        <div class="bg-gray-100 px-2 py-1 border-b border-gray-300">SSS No.:</div>
-        <div class="px-2 py-1 border-b border-gray-300">sss</div>
-        <div class="bg-gray-100 px-2 py-1 border-b border-gray-300">Philhealth No.:</div>
-        <div class="px-2 py-1 border-b border-gray-300">none</div>
-        <div class="bg-gray-100 px-2 py-1 border-b border-gray-300">Pag-IBIG No.:</div>
-        <div class="px-2 py-1 border-b border-gray-300">none</div>
+      <!-- Gross / Deductions / Net Pay -->
+      <div class="text-right space-y-0.5 mr-1">
+        <p class="font-semibold"><span>Gross Pay:</span> ₱1000</p>
+        <p class="font-semibold text-red-600"><span>Deductions:</span> - ₱100</p>
+        <p class="font-bold text-lg"><span>Net Pay:</span> ₱100</p>
       </div>
 
-      <!-- Salary Info -->
-      <div class="grid grid-cols-2 gap-0 border border-gray-200 shadow-md rounded-none bg-white w-full md:w-1/4 text-sm">
-        <div class="bg-gray-100 px-2 py-1 border-b border-gray-300 font-semibold">Designation:</div>
-        <div class="px-2 py-1 border-b border-gray-300">Admin assistant</div>
-        <div class="bg-gray-100 px-2 py-1 border-b border-gray-300 font-semibold">Pay Period (Start):</div>
-        <div class="px-2 py-1 border-b border-gray-300">October 1, 2025</div>
-        <div class="bg-gray-100 px-2 py-1 border-b border-gray-300 font-semibold">Pay Period (End):</div>
-        <div class="px-2 py-1 border-b border-gray-300">October 15, 2025</div>
-      </div>
-    </div>
-
-    <!-- Earnings & Deductions -->
-    <div class="flex flex-col md:flex-row gap-4">
-      <!-- Earnings Table -->
-      <div class="w-full md:w-1/2 overflow-x-auto">
-        <table class="w-full border border-gray-300 text-sm">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="border px-2 py-1">TOTAL OVERTIME/HOURS WORKED</th>
-              <th class="border px-2 py-1">TOTAL DAYS WORKED</th>
-              <th class="border px-2 py-1">HOURLY RATE</th>
-              <th class="border px-2 py-1">DAILY RATE</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="border text-center px-2 py-1">10</td>
-              <td class="border text-center px-2 py-1">11</td>
-              <td class="border text-center px-2 py-1">12</td>
-              <td class="border text-center px-2 py-1">₱13</td>
-            </tr>
-            <tr>
-              <td class="border text-left px-2 py-1" colspan="4">
-                <span>Total Daily Pay</span> <span>= ₱100</span><br>
-                <span>Total Overtime Pay</span> <span>= ₱100</span><br>
-                <span>Commission:</span><br>
-                <span class="ml-4">11 items</span> * <span>₱12</span> = <span>₱1200</span>
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr class="font-bold text-left">
-              <td colspan="4" class="border px-2 py-1">Gross Pay: ₱1200</td>
-            </tr>
-          </tfoot>
-        </table>
-        <button id="addCommissionBtn" class="mt-2 bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded no-print w-full md:w-auto">
-          Add Commission
-        </button>
+      <!-- Employee & Salary Details -->
+      <div class="flex flex-col md:flex-row gap-2 mt-2">
+        <!-- Employee Info -->
+        <div class="grid grid-cols-2 border border-gray-200 text-xs w-full md:w-3/4">
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Name:</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">Claire</div>
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Email:</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">claire@gmail.com</div>
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Contact:</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">09918895966</div>
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">SSS:</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">sss</div>
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Philhealth:</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">none</div>
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Pag-IBIG:</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">none</div>
+        </div>
+        <!-- Salary Info -->
+        <div class="grid grid-cols-2 border border-gray-200 text-xs w-full md:w-1/4">
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Designation:</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">Admin</div>
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Pay Start:</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">Oct 1, 2025</div>
+          <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Pay End:</div>
+          <div class="px-1 py-0.5 border-b border-gray-300">Oct 15, 2025</div>
+        </div>
       </div>
 
-      <!-- Deductions Table -->
-      <div class="relative w-full md:w-1/2 overflow-x-auto">
-        <table id="deductionsTable" class="w-full border border-gray-300 text-sm">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="text-left border px-2 py-1">DEDUCTIONS</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-          <tfoot>
-            <tr class="font-semibold text-left">
-              <td class="border px-2 py-1">
-                Cash Advance = ₱100<br>
-                Cellphone = ₱1000
-              </td>
-            </tr>
-            <tr class="font-bold">
-              <td class="border px-2 py-1 text-left">Total Deductions: ₱100</td>
-            </tr>
-          </tfoot>
-        </table>
-        <button id="addDeductionBtn" class="absolute right-0 mt-2 bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded no-print">
-          Add Deduction
-        </button>
+      <!-- Earnings & Deductions -->
+      <div class="flex flex-col md:flex-row gap-2 mt-1">
+        <!-- Earnings -->
+        <div class="w-full md:w-1/2 overflow-x-auto">
+          <table class="w-full border border-gray-300 text-xs">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="border px-1 py-0.5">OT/HRS</th>
+                <th class="border px-1 py-0.5">DAYS</th>
+                <th class="border px-1 py-0.5">HR RATE</th>
+                <th class="border px-1 py-0.5">DAY RATE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="border text-center px-1 py-0.5">10</td>
+                <td class="border text-center px-1 py-0.5">11</td>
+                <td class="border text-center px-1 py-0.5">12</td>
+                <td class="border text-center px-1 py-0.5">₱13</td>
+              </tr>
+              <tr>
+                <td colspan="4" class="border px-1 py-0.5">
+                  Total Daily Pay = ₱100<br>
+                  Total Overtime = ₱100<br>
+                  Commission: 11 items * ₱12 = ₱1200
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="font-bold text-left">
+                <td colspan="4" class="border px-1 py-0.5">Gross Pay: ₱1200</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Deductions -->
+        <div class="w-full md:w-1/2 overflow-x-auto">
+          <table class="w-full border border-gray-300 text-xs">
+            <thead class="bg-gray-100">
+              <tr><th class="border px-1 py-0.5 text-left">DEDUCTIONS</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="border px-1 py-0.5">Cash Advance = ₱100<br>Cellphone = ₱1000</td></tr>
+            </tbody>
+            <tfoot>
+              <tr class="font-bold"><td class="border px-1 py-0.5">Total Deductions: ₱100</td></tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Signatures -->
+      <div class="grid grid-cols-3 mt-2 text-center text-xs gap-1">
+        <div class="flex flex-col items-center">
+          <img src="{{ asset('images/signature.png') }}" class="h-6 mb-0">
+          <span class="font-bold underline">CLAIRE NAKILA</span>
+          <span>Employee</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <img src="{{ asset('images/signature.png') }}" class="h-6 mb-0">
+          <span class="font-bold underline">CLAIRE NAKILA</span>
+          <span>Prepared By</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <img src="{{ asset('images/signature.png') }}" class="h-6 mb-0">
+          <span class="font-bold underline">CLAIRE NAKILA</span>
+          <span>Employer</span>
+        </div>
       </div>
     </div>
-
-    <!-- Signatures -->
-    <div class="grid grid-cols-1 md:grid-cols-3 mt-10 text-center text-sm text-gray-600 gap-4">
-      <!-- Employee -->
-      <div class="flex flex-col items-center">
-        <img src="{{ asset('images/signature.png') }}" alt="Employee Signature" class="h-11 mb-0">
-        <span class="font-bold underline leading-tight">____CLAIRE NAKILA____</span>
-        <span class="text-xs mt-0">Employee Overprinted Name</span>
-      </div>
-
-      <!-- Prepared By -->
-      <div class="flex flex-col items-center">
-        <img src="{{ asset('images/signature.png') }}" alt="Prepared By Signature" class="h-11 mb-0">
-        <span class="font-bold underline leading-tight">____CLAIRE NAKILA____</span>
-        <span class="text-xs mt-0">Prepared By</span>
-      </div>
-
-      <!-- Employer -->
-      <div class="flex flex-col items-center">
-        <img src="{{ asset('images/signature.png') }}" alt="Employer Signature" class="h-11 mb-0">
-        <span class="font-bold underline leading-tight">____CLAIRE NAKILA____</span>
-        <span class="text-xs mt-0">Employer Overprinted Name</span>
-      </div>
-    </div>
-
-    <div class="my-4 text-center no-print">
-      <button id="printPayslipBtn" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded">
-        Print Payslip PDF
-      </button>
-    </div>
+    @endfor
   </div>
 </body>
 </html>
