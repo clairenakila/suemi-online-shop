@@ -101,35 +101,24 @@ class AttendanceResource extends Resource
             ])
             ->defaultSort('date','desc')
             ->filters([
-                // Filter::make('date')
-                //     ->form([
-                //         DatePicker::make('date')
-                //             ->label('Date'),
-                //     ])
-                //     ->query(function ($query, array $data): void {
-                //         $query->when(
-                //             $data['date'],
-                //             fn ($query, $date) => $query->whereDate('date', $date),
-                //         );
-                //     }),
 
                  Filter::make('date_range')
-        ->label('Filter by Date Range')
-        ->form([
-            DatePicker::make('start_date')->label('Start Date')->native(false)->closeOnDateSelection(),
-            DatePicker::make('end_date')->label('End Date')->native(false)->closeOnDateSelection(),
-        ])
-        ->query(function (Builder $query, array $data): Builder {
-            return $query
-                ->when($data['start_date'], fn ($q, $date) => $q->whereDate('date', '>=', $date))
-                ->when($data['end_date'], fn ($q, $date) => $q->whereDate('date', '<=', $date));
-        })
-        ->indicateUsing(function (array $data): array {
-            $indicators = [];
-            if ($data['start_date'] ?? null) $indicators['start_date'] = 'Start: ' . $data['start_date'];
-            if ($data['end_date'] ?? null) $indicators['end_date'] = 'End: ' . $data['end_date'];
-            return $indicators;
-        }),
+                    ->label('Filter by Date Range')
+                    ->form([
+                        DatePicker::make('start_date')->label('Start Date')->native(false)->closeOnDateSelection(),
+                        DatePicker::make('end_date')->label('End Date')->native(false)->closeOnDateSelection(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['start_date'], fn ($q, $date) => $q->whereDate('date', '>=', $date))
+                            ->when($data['end_date'], fn ($q, $date) => $q->whereDate('date', '<=', $date));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['start_date'] ?? null) $indicators['start_date'] = 'Start: ' . $data['start_date'];
+                        if ($data['end_date'] ?? null) $indicators['end_date'] = 'End: ' . $data['end_date'];
+                        return $indicators;
+                    }),
 
 
                 SelectFilter::make('user_id')
@@ -154,112 +143,64 @@ class AttendanceResource extends Resource
                 //     ->slideOver(),
             ])
             ->bulkActions([
-    //             Tables\Actions\BulkAction::make('print_payslip')
-    // ->label('Print Payslip')
-    // ->icon('heroicon-o-printer')
-    // ->slideOver()
-    // ->color('primary')
-    // ->action(function (array $data, $records, Tables\Actions\BulkAction $action) {
-    //     // Get the filters (especially date range)
-    //     $filters = $action->getLivewire()->tableFilters;
+            Tables\Actions\BulkAction::make('print_payslip')
+                ->label('Print Payslip')
+                ->icon('heroicon-o-printer')
+                ->slideOver()
+                ->color('primary')
+                ->requiresConfirmation()
+                ->modalHeading('Print Payslip')
+                ->modalDescription(function ($records, $action) {
+                    // Get date filters from the Livewire table instance
+                    $filters = $action->getLivewire()->tableFilters;
 
-    //     $startDate = $filters['date_range']['start_date'] ?? null;
-    //     $endDate   = $filters['date_range']['end_date'] ?? null;
+                    $startDate = $filters['date_range']['start_date'] ?? null;
+                    $endDate   = $filters['date_range']['end_date'] ?? null;
 
-    //     if (!$startDate || !$endDate) {
-    //         \Filament\Notifications\Notification::make()
-    //             ->title('Please select a start and end date first.')
-    //             ->warning()
-    //             ->send();
-    //         return;
-    //     }
+                    // Collect employee names from selected records
+                    $names = $records
+                        ->pluck('user.name')
+                        ->unique()
+                        ->implode(', ');
 
-    //     // Group selected records by user
-    //     $userIds = $records->pluck('user_id')->unique();
+                    // Fallback if no date range set
+                    if (!$startDate || !$endDate) {
+                        return "Generate and print payslips for {$names} (please select a start and end date first).";
+                    }
 
-    //     foreach ($userIds as $userId) {
-    //         $user = \App\Models\User::find($userId);
+                    // Format nicely
+                    $formattedStart = \Carbon\Carbon::parse($startDate)->format('M d, Y');
+                    $formattedEnd = \Carbon\Carbon::parse($endDate)->format('M d, Y');
 
-    //         // Fetch attendance summary for this user within date range
-    //         $attendances = \App\Models\Attendance::where('user_id', $userId)
-    //             ->whereBetween('date', [$startDate, $endDate])
-    //             ->get();
+                    return "Generate and print payslips for {$names} from {$formattedStart} to {$formattedEnd}.";
+                })
+                ->action(function (array $data, $records, Tables\Actions\BulkAction $action) {
+                    $filters = $action->getLivewire()->tableFilters;
+                    $startDate = $filters['date_range']['start_date'] ?? null;
+                    $endDate   = $filters['date_range']['end_date'] ?? null;
 
-    //         $totalDays = $attendances->sum('total_days');
-    //         $totalHours = $attendances->sum('total_hours');
+                    if (!$startDate || !$endDate) {
+                        \Filament\Notifications\Notification::make()
+                            ->title('Please select a start and end date first.')
+                            ->warning()
+                            ->send();
+                        return;
+                    }
 
-    //         // Redirect to payslip page (open in new tab)
-    //         $url = route('payslip.view', [
-    //             'user_id' => $userId,
-    //             'start_date' => $startDate,
-    //             'end_date' => $endDate,
-    //         ]);
+                    // Handle each selected employee
+                    $userIds = $records->pluck('user_id')->unique();
 
-    //         return redirect()->away($url);
-    //     }
-    // })
-    // ->requiresConfirmation()
-    // ->modalHeading('Print Payslip')
-    // ->modalDescription('Generate and print payslips for user.name from oct1 to oct3.'),
+                    foreach ($userIds as $userId) {
+                        $url = route('payslip.view', [
+                            'user_id' => $userId,
+                            'start_date' => $startDate,
+                            'end_date' => $endDate,
+                        ]);
 
-    Tables\Actions\BulkAction::make('print_payslip')
-    ->label('Print Payslip')
-    ->icon('heroicon-o-printer')
-    ->slideOver()
-    ->color('primary')
-    ->requiresConfirmation()
-    ->modalHeading('Print Payslip')
-    ->modalDescription(function ($records, $action) {
-        // Get date filters from the Livewire table instance
-        $filters = $action->getLivewire()->tableFilters;
-
-        $startDate = $filters['date_range']['start_date'] ?? null;
-        $endDate   = $filters['date_range']['end_date'] ?? null;
-
-        // Collect employee names from selected records
-        $names = $records
-            ->pluck('user.name')
-            ->unique()
-            ->implode(', ');
-
-        // Fallback if no date range set
-        if (!$startDate || !$endDate) {
-            return "Generate and print payslips for {$names} (please select a start and end date first).";
-        }
-
-        // Format nicely
-        $formattedStart = \Carbon\Carbon::parse($startDate)->format('M d, Y');
-        $formattedEnd = \Carbon\Carbon::parse($endDate)->format('M d, Y');
-
-        return "Generate and print payslips for {$names} from {$formattedStart} to {$formattedEnd}.";
-    })
-    ->action(function (array $data, $records, Tables\Actions\BulkAction $action) {
-        $filters = $action->getLivewire()->tableFilters;
-        $startDate = $filters['date_range']['start_date'] ?? null;
-        $endDate   = $filters['date_range']['end_date'] ?? null;
-
-        if (!$startDate || !$endDate) {
-            \Filament\Notifications\Notification::make()
-                ->title('Please select a start and end date first.')
-                ->warning()
-                ->send();
-            return;
-        }
-
-        // Handle each selected employee
-        $userIds = $records->pluck('user_id')->unique();
-
-        foreach ($userIds as $userId) {
-            $url = route('payslip.view', [
-                'user_id' => $userId,
-                'start_date' => $startDate,
-                'end_date' => $endDate,
-            ]);
-
-            // Redirect to new tab
-            return redirect()->away($url);
-        }
-    }),
+                        // Redirect to new tab
+                        return redirect()->away($url);
+                    }
+                }),
 
 
                 Tables\Actions\BulkActionGroup::make([
