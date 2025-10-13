@@ -313,6 +313,20 @@ class AttendanceResource extends Resource
         ];
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        // If not super_admin and not role_id 1 → restrict to own records
+        if (!($user->hasRole('super_admin') || $user->role_id == 1)) {
+            $query->where('user_id', $user->id);
+        }
+
+        return $query;
+    }
+
+
     public static function getPages(): array
     {
         return [
