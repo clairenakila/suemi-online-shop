@@ -129,9 +129,9 @@ class AttendanceResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->label('')
-                    ->slideOver(),
+                // Tables\Actions\EditAction::make()
+                //     ->label('')
+                //     ->slideOver(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

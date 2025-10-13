@@ -5,7 +5,7 @@ namespace App\Filament\Resources\AttendanceResource\Pages;
 use App\Filament\Resources\AttendanceResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Forms; // ✅ Add this line!
+use Filament\Forms; 
 use Filament\Notifications\Notification;
 use App\Models\User;
 use App\Models\Attendance;
@@ -13,6 +13,8 @@ use Carbon\CarbonPeriod;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\CheckboxList\SelectAllAction;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\FileUpload;
+
 
 
 
@@ -23,7 +25,7 @@ class ListAttendances extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
+         $actions = [
             Actions\Action::make('bulkAddAttendance')
                 ->label('Create')
                 // ->icon('heroicon-o-calendar-plus')
@@ -40,15 +42,6 @@ class ListAttendances extends ListRecords
                         ->required(),
                        
 
-                    // Forms\Components\CheckboxList::make('user_ids')
-                    //     ->label('Select Employees')
-                    //     ->options(User::where('is_employee', 'Yes')->pluck('name', 'id'))
-                    //     ->columns(2)
-                    //     ->required()
-                    //     ->selectAllAction(function (Action $action) {
-                    //         $action->label('Select All Employees');
-                    //         return $action;
-                    //     }),
                     CheckboxList::make('user_ids')
                         ->label('Select Employees')
                         ->options(User::where('is_employee', 'Yes')->pluck('name', 'id'))
@@ -106,6 +99,29 @@ class ListAttendances extends ListRecords
             // Actions\CreateAction::make()
             //     ->label('Create')
             //     ->slideOver(),
+
+            
         ];
+        $user = auth()->user();
+        // ✅ Show import only for super_admin (role_id = 1)
+        if ($user && $user->role_id === 1) {
+            $actions[] = Actions\Action::make('importAttendance')
+                ->label('Import')
+                ->slideOver()
+                ->color('success')
+                ->icon('heroicon-o-arrow-up-tray')
+                ->button()
+                ->form([
+                    FileUpload::make('attachment')
+                        ->label('Import an Excel file. Column headers must include: Date, Name, Time In, Time Out, Work Shift Status, Total Days, and Total Hours.')
+                ])
+                ->action(function (array $data) {
+                    $file = public_path('storage/' . $data['attachment']);
+                    Excel::import(new \App\Imports\AttendanceImport, $file);
+                });
+        }
+
+        return $actions;
+
     }
 }
