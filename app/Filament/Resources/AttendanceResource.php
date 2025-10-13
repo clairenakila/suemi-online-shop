@@ -131,7 +131,7 @@ class AttendanceResource extends Resource
             return $indicators;
         }),
 
-        
+
                 SelectFilter::make('user_id')
                     ->label('Employee')
                     ->options(
@@ -154,6 +154,114 @@ class AttendanceResource extends Resource
                 //     ->slideOver(),
             ])
             ->bulkActions([
+    //             Tables\Actions\BulkAction::make('print_payslip')
+    // ->label('Print Payslip')
+    // ->icon('heroicon-o-printer')
+    // ->slideOver()
+    // ->color('primary')
+    // ->action(function (array $data, $records, Tables\Actions\BulkAction $action) {
+    //     // Get the filters (especially date range)
+    //     $filters = $action->getLivewire()->tableFilters;
+
+    //     $startDate = $filters['date_range']['start_date'] ?? null;
+    //     $endDate   = $filters['date_range']['end_date'] ?? null;
+
+    //     if (!$startDate || !$endDate) {
+    //         \Filament\Notifications\Notification::make()
+    //             ->title('Please select a start and end date first.')
+    //             ->warning()
+    //             ->send();
+    //         return;
+    //     }
+
+    //     // Group selected records by user
+    //     $userIds = $records->pluck('user_id')->unique();
+
+    //     foreach ($userIds as $userId) {
+    //         $user = \App\Models\User::find($userId);
+
+    //         // Fetch attendance summary for this user within date range
+    //         $attendances = \App\Models\Attendance::where('user_id', $userId)
+    //             ->whereBetween('date', [$startDate, $endDate])
+    //             ->get();
+
+    //         $totalDays = $attendances->sum('total_days');
+    //         $totalHours = $attendances->sum('total_hours');
+
+    //         // Redirect to payslip page (open in new tab)
+    //         $url = route('payslip.view', [
+    //             'user_id' => $userId,
+    //             'start_date' => $startDate,
+    //             'end_date' => $endDate,
+    //         ]);
+
+    //         return redirect()->away($url);
+    //     }
+    // })
+    // ->requiresConfirmation()
+    // ->modalHeading('Print Payslip')
+    // ->modalDescription('Generate and print payslips for user.name from oct1 to oct3.'),
+
+    Tables\Actions\BulkAction::make('print_payslip')
+    ->label('Print Payslip')
+    ->icon('heroicon-o-printer')
+    ->slideOver()
+    ->color('primary')
+    ->requiresConfirmation()
+    ->modalHeading('Print Payslip')
+    ->modalDescription(function ($records, $action) {
+        // Get date filters from the Livewire table instance
+        $filters = $action->getLivewire()->tableFilters;
+
+        $startDate = $filters['date_range']['start_date'] ?? null;
+        $endDate   = $filters['date_range']['end_date'] ?? null;
+
+        // Collect employee names from selected records
+        $names = $records
+            ->pluck('user.name')
+            ->unique()
+            ->implode(', ');
+
+        // Fallback if no date range set
+        if (!$startDate || !$endDate) {
+            return "Generate and print payslips for {$names} (please select a start and end date first).";
+        }
+
+        // Format nicely
+        $formattedStart = \Carbon\Carbon::parse($startDate)->format('M d, Y');
+        $formattedEnd = \Carbon\Carbon::parse($endDate)->format('M d, Y');
+
+        return "Generate and print payslips for {$names} from {$formattedStart} to {$formattedEnd}.";
+    })
+    ->action(function (array $data, $records, Tables\Actions\BulkAction $action) {
+        $filters = $action->getLivewire()->tableFilters;
+        $startDate = $filters['date_range']['start_date'] ?? null;
+        $endDate   = $filters['date_range']['end_date'] ?? null;
+
+        if (!$startDate || !$endDate) {
+            \Filament\Notifications\Notification::make()
+                ->title('Please select a start and end date first.')
+                ->warning()
+                ->send();
+            return;
+        }
+
+        // Handle each selected employee
+        $userIds = $records->pluck('user_id')->unique();
+
+        foreach ($userIds as $userId) {
+            $url = route('payslip.view', [
+                'user_id' => $userId,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+            ]);
+
+            // Redirect to new tab
+            return redirect()->away($url);
+        }
+    }),
+
+
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\BulkAction::make('bulk_update')
                     ->label('Bulk Update')

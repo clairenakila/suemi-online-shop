@@ -66,3 +66,7 @@ https://github.com/mailhog/MailHog/releases
 
 //for migration:
 php artisan migrate:rollback --path=/database/migrations/2025_10_08_071814_create_items_table.php
+
+//livewire
+app/Livewire/Filament/Counter.php
+resources/views/livewire/filament/counter.blade.php
