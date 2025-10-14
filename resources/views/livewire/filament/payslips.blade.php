@@ -42,7 +42,7 @@
 
           </p>
           <p class="font-semibold text-red-600">
-          Deductions: ₱<span id="totalDeductionTop{{ $i }}">0.00</span>
+          (Deductions: ₱<span id="totalDeductionTop{{ $i }}">0.00</span>)
           
           <p class="font-bold text-lg">NET Pay:
            
@@ -112,13 +112,13 @@
                     <div id="commissionList{{ $i }}" class=" ml-5">
                     @if(count($commissions) > 0)
                         @foreach($commissions as $c)
-                            {{ $c['quantity'] }} pcs. {{ $c['description'] }} * ₱{{ number_format($c['price'], 2) }} = ₱{{ number_format($c['total'], 2) }}<br>
+                            {{ $c['quantity'] }} pcs. {{ $c['description'] }} * ₱{{ number_format($c['price'], 2) }} each = ₱{{ number_format($c['total'], 2) }}<br>
                         @endforeach
                     @else
                         N/A
                     @endif
                 </div>
-                    Total Commission: ₱<span id="totalCommission{{ $i }}">{{ isset($totalCommission) ? number_format($totalCommission,2) : '0.00' }}</span>
+                    Total Commission: ₱<span id="totalCommission{{ $i }}">{{ isset($totalCommission) ? number_format($totalCommission,2) : '0.00' }} </span> 
                   </td>
                 </tr>
               </tbody>
@@ -233,107 +233,6 @@
   </div>
 </div>
 
-  <!-- <script>
-    // start of commission logic
-    let commissions = [];
-
-    function showCommissionModal() {
-      document.getElementById('commissionModal').classList.remove('hidden');
-    }
-
-    function hideCommissionModal() {
-      document.getElementById('commissionModal').classList.add('hidden');
-    }
-
-    function updateCommissionLists() {
-      for (let i = 0; i < 2; i++) { // update both payslips
-        const list = document.getElementById('commissionList' + i);
-        list.innerHTML = commissions.length
-          ? commissions.map(c =>
-      `${c.quantity} pcs. ${c.description} x ₱${c.price.toFixed(2)} each = ₱${c.total.toFixed(2)}<br>`
-            ).join('')
-          : '<li>N/A</li>';
-
-        const totalCom = commissions.reduce((sum, c) => sum + c.total, 0);
-        document.getElementById('totalCommission' + i).innerText = totalCom.toFixed(2);
-
-       // Calculate total daily pay & overtime pay from Blade PHP variables
-    const totalDailyPay = {{ $totalDays ?? 0 }} * {{ $user->daily_rate ?? 0 }};
-    const totalOvertimePay = {{ $totalHours ?? 0 }} * {{ $user->hourly_rate ?? 0 }};
-
-    // Calculate Gross Pay
-    const grossPay = totalDailyPay + totalOvertimePay + totalCom;
-    document.getElementById('grossPay' + i).innerText = '₱' + grossPay.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    document.getElementById('grossPayTable' + i).innerText = '₱' + grossPay.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-      }
-    }
-
-    function addCommission(e) {
-      e.preventDefault();
-      const description = document.getElementById('description').value;
-      const quantity = parseFloat(document.getElementById('quantity').value);
-      const price = parseFloat(document.getElementById('price').value);
-      const total = quantity * price;
-
-      commissions.push({description, quantity, price, total});
-      updateCommissionLists();
-
-      document.getElementById('commissionForm').reset();
-      hideCommissionModal();
-    }
-
-    // start of deduction logic
-    let deductions = [];
-
-  function showDeductionModal() {
-    document.getElementById('deductionModal').classList.remove('hidden');
-  }
-
-  function hideDeductionModal() {
-    document.getElementById('deductionModal').classList.add('hidden');
-  }
-
-  function updateDeductionLists() {
-    for (let i = 0; i < 2; i++) { // update both payslips
-      const deductionTable = document.getElementById('deductionTable' + i);
-      
-      if (deductions.length) {
-        deductionTable.innerHTML = deductions.map(d =>
-          `${d.description} = ₱${d.amount.toFixed(2)}<br>`
-        ).join('');
-      } else {
-        deductionTable.innerHTML = 'N/A';
-      }
-
-      const totalDed = deductions.reduce((sum, d) => sum + d.amount, 0);
-      document.getElementById('totalDeduction' + i).innerText = totalDed.toFixed(2);
-        document.getElementById('totalDeductionTop' + i).innerText = totalDed.toFixed(2);
-
-
-      // Update Net Pay dynamically
-      const grossPay = parseFloat(document.getElementById('grossPay' + i).innerText.replace(/[^0-9.-]+/g, ""));
-      const netPay = grossPay - totalDed;
-      document.getElementById('netPay' + i).innerText = 
-        '₱' + netPay.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-  }
-
-  function addDeduction(e) {
-    e.preventDefault();
-    const description = document.querySelector('#deductionForm #description').value;
-    const amount = parseFloat(document.querySelector('#deductionForm #amount').value);
-
-    deductions.push({ description, amount });
-    updateDeductionLists();
-
-    document.getElementById('deductionForm').reset();
-    hideDeductionModal();
-  }
-  
-  
-  </script> -->
-
   <script>
   // ======================
   // COMMISSION LOGIC
@@ -375,7 +274,7 @@
       const list = document.getElementById('commissionList' + i);
       list.innerHTML = commissions.length
         ? commissions.map(c =>
-            `${c.quantity} pcs. ${c.description} x ₱${c.price.toFixed(2)} = ₱${c.total.toFixed(2)}<br>`
+            `${c.quantity} pcs. ${c.description} x ₱${c.price.toFixed(2)} each = ₱${c.total.toFixed(2)}<br>`
           ).join('')
         : 'N/A';
       document.getElementById('totalCommission' + i).innerText = totalCom.toFixed(2);
@@ -393,8 +292,8 @@
         : 'N/A';
 
       // Update total deductions (top and bottom)
-      document.getElementById('totalDeduction' + i).innerText = totalDed.toFixed(2);
-      document.getElementById('totalDeductionTop' + i).innerText = totalDed.toFixed(2);
+      document.getElementById('totalDeduction' + i).innerText = totalDed.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('totalDeductionTop' + i).innerText = totalDed.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
       // Update net pay dynamically
       document.getElementById('netPay' + i).innerText =
