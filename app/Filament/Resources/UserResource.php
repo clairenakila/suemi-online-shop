@@ -312,6 +312,7 @@ class UserResource extends Resource
                         ]),
                  Tables\Actions\DeleteBulkAction::make()
                  ->slideOver(),
+                 
 
                 ])
             ]);
