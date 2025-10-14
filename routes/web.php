@@ -17,3 +17,6 @@ Route::get('/', function () {
 Route::get('/payslips/{user_id}/{start_date}/{end_date}', Payslips::class)
     ->name('payslip.view');
 
+
+
+Route::post('/invoices/create', [Payslips::class, 'storeInvoice'])->name('invoices.create');
