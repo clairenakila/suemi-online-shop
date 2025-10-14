@@ -104,7 +104,9 @@
               </tbody>
               <tfoot>
                 <tr class="font-bold text-left">
-                  <td colspan="4" class="border px-1 py-0.5">Gross Pay: ₱1200</td>
+                  <td colspan="4" class="border px-1 py-0.5">
+                    Gross Pay: ₱<span id="grossPay{{ $i }}">0.00</span>
+                  </td>
                 </tr>
               </tfoot>
             </table>
@@ -212,6 +214,8 @@
       document.getElementById('commissionForm').reset();
       hideCommissionModal();
     }
+
+    
   </script>
 
 </body>
