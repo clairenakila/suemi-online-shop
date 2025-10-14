@@ -7,6 +7,7 @@ use Livewire\Component;
 use App\Models\User;
 use App\Models\Attendance;
 use Carbon\Carbon;
+use App\Models\Invoice;
 
 class Payslips extends Component
 {
@@ -88,6 +89,69 @@ class Payslips extends Component
         $this->showDeductionModal = false;
     }
     
+    public function createInvoice()
+{
+    // Compute total commissions and deductions
+    $totalCommission = collect($this->commissions)->sum('total');
+    $commissionDescriptions = collect($this->commissions)->pluck('description')->implode(', ');
+    $commissionQuantity = collect($this->commissions)->sum('quantity');
+
+    $totalDeduction = collect($this->deductions)->sum('amount');
+    $deductionDescriptions = collect($this->deductions)->pluck('description')->implode(', ');
+
+    // Compute gross and net pay (you may already have your own logic)
+    $grossPay = $this->total_daily_pay + $this->total_overtime_pay + $totalCommission;
+    $netPay = $grossPay - $totalDeduction;
+
+    // Save invoice record
+    Invoice::create([
+        'user_id' => $this->user->id,
+        'start_date' => $this->startDate,
+        'end_date' => $this->endDate,
+        'total_days' => $this->totalDays,
+        'total_hours' => $this->totalHours,
+        'total_daily_pay' => $this->total_daily_pay,
+        'total_overtime_pay' => $this->total_overtime_pay,
+        'total_commission' => $totalCommission,
+        'commission_descriptions' => $commissionDescriptions,
+        'commission_quantity' => $commissionQuantity,
+        'total_deduction' => $totalDeduction,
+        'deduction_descriptions' => $deductionDescriptions,
+        'gross_pay' => $grossPay,
+        'net_pay' => $netPay,
+    ]);
+
+
+
+    // Optionally, show a confirmation in Livewire
+    $this->dispatch('notify', message: 'Invoice saved successfully!');
+}
+
+
+public function storeInvoice(\Illuminate\Http\Request $request)
+{
+    $validated = $request->validate([
+        'user_id' => 'required|exists:users,id',
+        'start_date' => 'required|date',
+        'end_date' => 'required|date',
+        'total_days' => 'required|numeric',
+        'total_hours' => 'required|numeric',
+        'total_daily_pay' => 'required|numeric',
+        'total_overtime_pay' => 'required|numeric',
+        'total_commission' => 'required|numeric',
+        'commission_descriptions' => 'nullable|string',
+        'commission_quantity' => 'nullable|numeric',
+        'total_deduction' => 'required|numeric',
+        'deduction_descriptions' => 'nullable|string',
+        'gross_pay' => 'required|numeric',
+        'net_pay' => 'required|numeric',
+    ]);
+
+    \App\Models\Invoice::create($validated);
+
+    return response()->json(['message' => 'Invoice created successfully!']);
+}
+
 
     public function render()
     {
