@@ -31,7 +31,16 @@
 
         <!-- Gross / Deductions / Net Pay -->
         <div class="text-right space-y-0.5 mr-1">
-          <p class="font-semibold"><span>Gross Pay:</span> ₱1000</p>
+          <p class="font-semibold">Gross Pay: 
+            <span id="grossPay{{ $i }}">
+              {{ '₱' . number_format(
+                  ($totalDays * ($user->daily_rate ?? 0)) + 
+                  ($totalHours * ($user->hourly_rate ?? 0)) + 
+                  ($totalCommission ?? 0),2
+              ) }}
+          </span>
+
+          </p>
           <p class="font-semibold text-red-600"><span>Deductions:</span> - ₱100</p>
           <p class="font-bold text-lg"><span>Net Pay:</span> ₱100</p>
         </div>
@@ -105,15 +114,15 @@
               <tfoot>
                 <tr class="font-bold text-left">
                   <td colspan="4" class="border px-1 py-0.5">
-                    Gross Pay: ₱<span id="grossPay{{ $i }}">
-                       {{ 
-        number_format(
-            ($totalDays * $user->daily_rate ?? 0) + 
-            ($totalHours * $user->hourly_rate ?? 0) + 
-            ($totalCommission ?? 0),
-        2) 
-    }}
-                    </span>
+                    Gross Pay: 
+                   <span id="grossPayTable{{ $i }}">
+              {{ '₱' . number_format(
+                  ($totalDays * ($user->daily_rate ?? 0)) + 
+                  ($totalHours * ($user->hourly_rate ?? 0)) + 
+                  ($totalCommission ?? 0),2
+              ) }}
+          </span>
+
                   </td>
                 </tr>
               </tfoot>
@@ -213,7 +222,9 @@
 
     // Calculate Gross Pay
     const grossPay = totalDailyPay + totalOvertimePay + totalCom;
-    document.getElementById('grossPay' + i).innerText = grossPay.toFixed(2);
+    document.getElementById('grossPay' + i).innerText = '₱' + grossPay.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('grossPayTable' + i).innerText = '₱' + grossPay.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
       }
     }
 
