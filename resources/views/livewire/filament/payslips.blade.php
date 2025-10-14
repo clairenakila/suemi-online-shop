@@ -184,7 +184,7 @@
 
   <!-- Floating Add Commission Button -->
   <button 
-    class="fixed top-5 right-5 bg-rose-500 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-rose-600 transition"
+    class="fixed top-5 right-5 bg-amber-500 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-amber-300 transition"
     onclick="showCommissionModal()">
     + Add Commission
   </button>
@@ -210,7 +210,7 @@
 
   <!-- Floating Add Deduction Button -->
 <button 
-  class="fixed top-16 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-red-600 transition"
+  class="fixed top-16 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-red-300 transition"
   onclick="showDeductionModal()">
   + Add Deduction
 </button>
