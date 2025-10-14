@@ -59,6 +59,7 @@ class AttendanceResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -148,33 +149,33 @@ class AttendanceResource extends Resource
                 ->icon('heroicon-o-printer')
                 ->slideOver()
                 ->color('primary')
-                 ->requiresConfirmation()
-    ->action(function (array $data, $records, Tables\Actions\BulkAction $action) {
-        $filters = $action->getLivewire()->tableFilters;
-        $startDate = $filters['date_range']['start_date'] ?? null;
-        $endDate   = $filters['date_range']['end_date'] ?? null;
+                ->requiresConfirmation()
+                ->action(function (array $data, $records, Tables\Actions\BulkAction $action) {
+                    $filters = $action->getLivewire()->tableFilters;
+                    $startDate = $filters['date_range']['start_date'] ?? null;
+                    $endDate   = $filters['date_range']['end_date'] ?? null;
 
-        if (!$startDate || !$endDate) {
-            \Filament\Notifications\Notification::make()
-                ->title('Please select a start and end date first.')
-                ->warning()
-                ->send();
-            return;
-        }
+                    if (!$startDate || !$endDate) {
+                        \Filament\Notifications\Notification::make()
+                            ->title('Please select a start and end date first.')
+                            ->warning()
+                            ->send();
+                        return;
+                    }
 
-        $userIds = $records->pluck('user_id')->unique();
+                    $userIds = $records->pluck('user_id')->unique();
 
-        // For now, only handle the first user (can loop if needed)
-        $userId = $userIds->first();
+                    // For now, only handle the first user (can loop if needed)
+                    $userId = $userIds->first();
 
-        $url = route('payslip.view', [
-            'user_id' => $userId,
-            'start_date' => $startDate,
-            'end_date' => $endDate,
-        ]);
+                    $url = route('payslip.view', [
+                        'user_id' => $userId,
+                        'start_date' => $startDate,
+                        'end_date' => $endDate,
+                    ]);
 
-        return redirect()->away($url);
-    }),
+                    return redirect()->away($url);
+                }),
 
 
                 Tables\Actions\BulkActionGroup::make([
@@ -292,13 +293,14 @@ class AttendanceResource extends Resource
         $query = parent::getEloquentQuery();
         $user = auth()->user();
 
-        // If not super_admin and not role_id 1 → restrict to own records
-        if (!($user->hasRole('super_admin') || $user->role_id == 1)) {
+        // If not super admin, only show their own records
+        if ($user->role_id !== 1 && $user->role->name !== 'super_admin') {
             $query->where('user_id', $user->id);
         }
 
         return $query;
     }
+
 
 
     public static function getPages(): array

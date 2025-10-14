@@ -202,7 +202,7 @@
         </div>
         <div class="flex justify-end mt-4 space-x-2">
           <button type="button" class="bg-gray-300 px-3 py-1 rounded" onclick="hideCommissionModal()">Cancel</button>
-          <button type="submit" class="bg-rose-500 text-white px-3 py-1 rounded">OK</button>
+          <button type="submit" class="bg-amber-600 text-white px-3 py-1 rounded">OK</button>
         </div>
       </form>
     </div>
