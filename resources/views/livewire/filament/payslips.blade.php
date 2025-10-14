@@ -89,16 +89,16 @@
                     Total Daily Pay = {{ $user->daily_rate !== null ? '₱' . number_format($totalDays * $user->daily_rate, 2) : 'N/A' }}<br>
                     Total Overtime Pay = {{ $user->hourly_rate !== null ? '₱' . number_format($totalHours * $user->hourly_rate, 2) : 'N/A' }}<br>
                     Commission:
-              <div id="commissionList{{ $i }}" class="whitespace-pre ml-5">
-    @if(count($commissions) > 0)
-        @foreach($commissions as $c)
-            {{ $c['quantity'] }} pcs. {{ $c['description'] }} X ₱{{ number_format($c['price'], 2) }} = ₱{{ number_format($c['total'], 2) }}<br>
-        @endforeach
-    @else
-        N/A
-    @endif
-</div>
-                    <strong>Total Commission: ₱<span id="totalCommission{{ $i }}">{{ isset($totalCommission) ? number_format($totalCommission,2) : '0.00' }}</span></strong>
+                    <div id="commissionList{{ $i }}" class=" ml-5">
+                    @if(count($commissions) > 0)
+                        @foreach($commissions as $c)
+                            {{ $c['quantity'] }} pcs. {{ $c['description'] }} * ₱{{ number_format($c['price'], 2) }} = ₱{{ number_format($c['total'], 2) }}<br>
+                        @endforeach
+                    @else
+                        N/A
+                    @endif
+                </div>
+                    Total Commission: ₱<span id="totalCommission{{ $i }}">{{ isset($totalCommission) ? number_format($totalCommission,2) : '0.00' }}</span>
                   </td>
                 </tr>
               </tbody>
@@ -150,7 +150,7 @@
 
   <!-- Floating Add Commission Button -->
   <button 
-    class="fixed top-5 right-5 bg-blue-500 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-blue-600 transition"
+    class="fixed top-5 right-5 bg-rose-500 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-blue-600 transition"
     onclick="showCommissionModal()">
     + Add Commission
   </button>
@@ -190,7 +190,7 @@
         const list = document.getElementById('commissionList' + i);
         list.innerHTML = commissions.length
           ? commissions.map(c =>
-   `${c.quantity} pcs. ${c.description} X ₱${c.price.toFixed(2)} each = ₱${c.total.toFixed(2)}<br>`
+   `${c.quantity} pcs. ${c.description} x ₱${c.price.toFixed(2)} each = ₱${c.total.toFixed(2)}<br>`
             ).join('')
           : '<li>N/A</li>';
 
