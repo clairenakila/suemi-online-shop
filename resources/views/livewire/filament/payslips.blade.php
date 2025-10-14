@@ -105,7 +105,15 @@
               <tfoot>
                 <tr class="font-bold text-left">
                   <td colspan="4" class="border px-1 py-0.5">
-                    Gross Pay: ₱<span id="grossPay{{ $i }}">0.00</span>
+                    Gross Pay: ₱<span id="grossPay{{ $i }}">
+                       {{ 
+        number_format(
+            ($totalDays * $user->daily_rate ?? 0) + 
+            ($totalHours * $user->hourly_rate ?? 0) + 
+            ($totalCommission ?? 0),
+        2) 
+    }}
+                    </span>
                   </td>
                 </tr>
               </tfoot>
@@ -192,12 +200,20 @@
         const list = document.getElementById('commissionList' + i);
         list.innerHTML = commissions.length
           ? commissions.map(c =>
-   `${c.quantity} pcs. ${c.description} x ₱${c.price.toFixed(2)} each = ₱${c.total.toFixed(2)}<br>`
+      `${c.quantity} pcs. ${c.description} x ₱${c.price.toFixed(2)} each = ₱${c.total.toFixed(2)}<br>`
             ).join('')
           : '<li>N/A</li>';
 
         const totalCom = commissions.reduce((sum, c) => sum + c.total, 0);
         document.getElementById('totalCommission' + i).innerText = totalCom.toFixed(2);
+
+       // Calculate total daily pay & overtime pay from Blade PHP variables
+    const totalDailyPay = {{ $totalDays ?? 0 }} * {{ $user->daily_rate ?? 0 }};
+    const totalOvertimePay = {{ $totalHours ?? 0 }} * {{ $user->hourly_rate ?? 0 }};
+
+    // Calculate Gross Pay
+    const grossPay = totalDailyPay + totalOvertimePay + totalCom;
+    document.getElementById('grossPay' + i).innerText = grossPay.toFixed(2);
       }
     }
 
