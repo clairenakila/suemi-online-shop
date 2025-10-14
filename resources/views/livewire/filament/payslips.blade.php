@@ -6,7 +6,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   @vite('resources/css/app.css')
 </head>
-<body class="bg-gray-200 flex justify-center items-start py-5">
+<body class="bg-white flex justify-center items-start py-5">
 
   <!-- Bondpaper Container -->
   <div class="bg-white w-full max-w-[800px] p-2 shadow-lg flex flex-col space-y-4">
