@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\InvoiceResource\Pages;
 use App\Filament\Resources\InvoiceResource\RelationManagers;
 use App\Models\Invoice;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,6 +13,10 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\DatePicker;
+
 
 class InvoiceResource extends Resource
 {
@@ -88,12 +93,16 @@ class InvoiceResource extends Resource
                 //     ->dateTime()
                 //     ->sortable()
                 //     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('start_date')
-                    ->label('Pay Period(Start)')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('end_date')
-                    ->label('Pay Period(End)')
+                // Tables\Columns\TextColumn::make('start_date')
+                //     ->label('Pay Period(Start)')
+                //     ->date()
+                //     ->sortable(),
+                // Tables\Columns\TextColumn::make('end_date')
+                //     ->label('Pay Period(End)')
+                //     ->date()
+                //     ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Date')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.name')
@@ -142,7 +151,26 @@ class InvoiceResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                //
+                 Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('created_at')
+                            ->label('Date'),
+                    ])
+                    ->query(function ($query, array $data): void {
+                        $query->when(
+                            $data['created_at'],
+                            fn ($query, $date) => $query->whereDate('created_at', $date),
+                        );
+                    }),
+
+                    SelectFilter::make('user_id')
+                    ->label('Employee')
+                    ->options(
+                        \App\Models\User::whereIn('id', \App\Models\Invoice::pluck('user_id')->unique())
+                            ->pluck('name', 'id')
+                            ->toArray()
+                    ),
+
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
