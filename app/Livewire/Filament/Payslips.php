@@ -24,6 +24,12 @@ class Payslips extends Component
     ];
     public $showCommissionModal = false;
 
+    public $deductions = []; // list of added deductions
+    public $newDeduction = [
+        'description' => '',
+        'amount' => 0,
+    ];
+    public $showDeductionModal = false;
     
 
       public function mount($user_id, $start_date, $end_date)
@@ -65,11 +71,31 @@ class Payslips extends Component
         $this->showCommissionModal = false;
     }
 
+    public function addDeduction()
+    {
+        $this->validate([
+            'newDeduction.description' => 'required|string',
+            'newDeduction.amount' => 'required|numeric|min:0',
+        ]);
+
+        $this->deductions[] = [
+            'description' => $this->newDeduction['description'],
+            'amount' => $this->newDeduction['amount'],
+        ];
+
+        // Reset modal input
+        $this->newDeduction = ['description' => '', 'amount' => 0];
+        $this->showDeductionModal = false;
+    }
+    
+
     public function render()
     {
         return view('livewire.filament.payslips', [
             'totalDays' => $this->totalDays,
             'totalHours' => $this->totalHours,
+            // 'commissions' => $this->commissions,
+            // 'deductions' => $this->deductions,
         ]);
     }
 }

@@ -136,7 +136,8 @@
                 <tr><th class="border px-1 py-0.5 text-left">DEDUCTIONS</th></tr>
               </thead>
               <tbody>
-                <tr><td class="border px-1 py-0.5">Cash Advance = ₱100<br>Cellphone = ₱1000</td></tr>
+                <tr>
+                  <td class="border px-1 py-0.5">Cash Advance = ₱100<br>Cellphone = ₱1000</td></tr>
               </tbody>
               <tfoot>
                 <tr class="font-bold"><td class="border px-1 py-0.5">Total Deductions: ₱100</td></tr>
@@ -169,13 +170,13 @@
 
   <!-- Floating Add Commission Button -->
   <button 
-    class="fixed top-5 right-5 bg-rose-500 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-blue-600 transition"
+    class="fixed top-5 right-5 bg-rose-500 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-rose-600 transition"
     onclick="showCommissionModal()">
     + Add Commission
   </button>
 
   <!-- Commission Modal -->
-  <div id="commissionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+  <div id="commissionModal" class="fixed inset-0 bg-white bg-opacity-10 hidden z-50">
     <div class="flex justify-center items-center h-full">
       <form id="commissionForm" class="bg-white w-full max-w-md p-4 rounded shadow-lg relative" onsubmit="addCommission(event)">
         <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800" onclick="hideCommissionModal()">✕</button>
@@ -187,13 +188,39 @@
         </div>
         <div class="flex justify-end mt-4 space-x-2">
           <button type="button" class="bg-gray-300 px-3 py-1 rounded" onclick="hideCommissionModal()">Cancel</button>
-          <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded">OK</button>
+          <button type="submit" class="bg-rose-500 text-white px-3 py-1 rounded">OK</button>
         </div>
       </form>
     </div>
   </div>
 
+  <!-- Floating Add Deduction Button -->
+<button 
+  class="fixed top-16 right-5 bg-blue-500 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-blue-600 transition"
+  onclick="showDeductionModal()">
+  + Add Deduction
+</button>
+
+<!-- Deduction Modal -->
+<div id="deductionModal" class="fixed inset-0 bg-white bg-opacity-10 hidden z-50">
+  <div class="flex justify-center items-center h-full">
+    <form id="deductionForm" class="bg-white w-full max-w-md p-4 rounded shadow-lg relative" onsubmit="addDeduction(event)">
+      <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800" onclick="hideDeductionModal()">✕</button>
+      <h2 class="text-lg font-bold mb-2">Add Deduction</h2>
+      <div class="flex flex-col space-y-2">
+        <input id="deductionDescription" type="text" placeholder="Description" class="border px-2 py-1 rounded" required>
+        <input id="deductionAmount" type="number" placeholder="Amount" class="border px-2 py-1 rounded" required>
+      </div>
+      <div class="flex justify-end mt-4 space-x-2">
+        <button type="button" class="bg-gray-300 px-3 py-1 rounded" onclick="hideDeductionModal()">Cancel</button>
+        <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded">OK</button>
+      </div>
+    </form>
+  </div>
+</div>
+
   <script>
+    // start of commission logic
     let commissions = [];
 
     function showCommissionModal() {
@@ -242,6 +269,56 @@
       hideCommissionModal();
     }
 
+    // start of deduction logic
+
+    let deductions = [];
+
+  function showDeductionModal() {
+    document.getElementById('deductionModal').classList.remove('hidden');
+  }
+
+  function hideDeductionModal() {
+    document.getElementById('deductionModal').classList.add('hidden');
+  }
+
+  function updateDeductionLists() {
+    for (let i = 0; i < 2; i++) { // update both payslips
+      const deductionTable = document.querySelector(`#deductionTable${i}`);
+      if(deductionTable) {
+        deductionTable.innerHTML = deductions.length
+          ? deductions.map(d => `${d.description} = ₱${d.amount.toFixed(2)}`).join('<br>')
+          : 'N/A';
+      }
+
+      const totalDeduction = deductions.reduce((sum, d) => sum + d.amount, 0);
+      const totalDeductionCell = document.getElementById('totalDeduction' + i);
+      if(totalDeductionCell) totalDeductionCell.innerText = '₱' + totalDeduction.toFixed(2);
+
+      // Recalculate Net Pay
+      const totalDailyPay = {{ $totalDays ?? 0 }} * {{ $user->daily_rate ?? 0 }};
+      const totalOvertimePay = {{ $totalHours ?? 0 }} * {{ $user->hourly_rate ?? 0 }};
+      const totalCommission = commissions.reduce((sum, c) => sum + c.total, 0);
+
+      const grossPay = totalDailyPay + totalOvertimePay + totalCommission;
+      const netPay = grossPay - totalDeduction;
+
+      document.getElementById('grossPay' + i).innerText = '₱' + grossPay.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('grossPayTable' + i).innerText = '₱' + grossPay.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('netPay' + i).innerText = '₱' + netPay.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+  }
+
+  function addDeduction(e) {
+    e.preventDefault();
+    const description = document.getElementById('deductionDescription').value;
+    const amount = parseFloat(document.getElementById('deductionAmount').value);
+
+    deductions.push({description, amount});
+    updateDeductionLists();
+
+    document.getElementById('deductionForm').reset();
+    hideDeductionModal();
+  }
     
   </script>
 
