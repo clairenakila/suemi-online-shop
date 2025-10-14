@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Invoice extends Model
 {
@@ -22,4 +23,10 @@ class Invoice extends Model
         'gross_pay',
         'net_pay',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }
