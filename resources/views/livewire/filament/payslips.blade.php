@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-200 flex justify-center items-start py-5">
@@ -233,6 +234,15 @@
   </div>
 </div>
 
+
+<!-- Floating Print Payslip Button -->
+<button 
+  id="printButton"
+  class="fixed top-28 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-green-300 transition"
+  onclick="handlePrintPayslip()">
+  🖨️ Print Payslip
+</button>
+
   <script>
   // ======================
   // COMMISSION LOGIC
@@ -332,6 +342,65 @@
     document.getElementById('deductionForm').reset();
     hideDeductionModal();
   }
+
+   function handlePrintPayslip() {
+    // Hide floating buttons before print
+    document.querySelectorAll(
+      'button[onclick="showCommissionModal()"], button[onclick="showDeductionModal()"], #printButton'
+    ).forEach(btn => btn.classList.add('hidden'));
+
+    // Wait a moment for the DOM update before printing
+    setTimeout(() => {
+      window.print();
+    }, 200);
+  }
+
+  // When print is done (or canceled), re-show buttons
+  window.onafterprint = () => {
+    document.querySelectorAll(
+      'button[onclick="showCommissionModal()"], button[onclick="showDeductionModal()"], #printButton'
+    ).forEach(btn => btn.classList.remove('hidden'));
+
+    // Optional: auto-download after print
+    downloadPayslipAsPDF();
+  };
+
+  // ======================
+  // AUTO-DOWNLOAD AS PDF
+  // ======================
+function downloadPayslipAsPDF() {
+  // Dynamic file name: EmployeeName_(StartDate_-_EndDate).pdf
+  const employeeName = "{{ str_replace(' ', '_', $user->name ?? 'Employee') }}";
+  const start = "{{ \Carbon\Carbon::parse($startDate)->format('M_d_Y') }}";
+  const end = "{{ \Carbon\Carbon::parse($endDate)->format('M_d_Y') }}";
+  const fileName = `${employeeName}_(${start}_-_ ${end}).pdf`;
+
+  const element = document.body;
+
+  const opt = {
+    margin: 0.2,
+    filename: fileName,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+
+  html2pdf().from(element).set(opt).save();
+}
+
+
+
+  // ======================
+  // ADD CTRL + P SHORTCUT
+  // ======================
+  window.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key.toLowerCase() === 'p') {
+      e.preventDefault(); // prevent default browser print
+      handlePrintPayslip();
+    }
+  });
+
+  
 </script>
 
 
