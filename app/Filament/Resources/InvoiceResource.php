@@ -26,6 +26,10 @@ class InvoiceResource extends Resource
     protected static ?string $navigationGroup = 'Payroll Management';
     protected static ?string $navigationLabel = 'Invoices';
     protected static bool $isLazy = false;
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function form(Form $form): Form
     {
@@ -150,6 +154,7 @@ class InvoiceResource extends Resource
                     ->numeric()
                     ->sortable(),
             ])
+            ->defaultSort('created_at','desc')
             ->filters([
                  Filter::make('created_at')
                     ->form([
