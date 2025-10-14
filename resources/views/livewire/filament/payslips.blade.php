@@ -18,7 +18,7 @@
           <div>
             <h1 class="text-sm md:text-base font-bold text-gray-800">Suemi Online Shop</h1>
             <p class="text-[9px] md:text-xs text-gray-600 leading-tight">
-              BLK 9 L5 Calliandra 2 Phase 1 Greenwoods<br>
+              BLK 9 L5 Calliandra 2 Phase 2 Greenwoods<br>
               Executive Village Paliparan 1 Dasmariñas Cavite<br>
               facebook.com/suemishop | 09151772074
             </p>
@@ -61,17 +61,17 @@
           <!-- Employee Info -->
           <div class="grid grid-cols-2 border border-gray-200 text-xs w-full md:w-3/4">
             <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Name:</div>
-            <div class="px-1 py-0.5 border-b border-gray-300">{{ $user->name ?? 'N/A' }}</div>
+            <div class="px-1 py-0.5 border-b border-gray-300 break-words whitespace-normal">{{ $user->name ?? 'N/A' }}</div>
             <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Email:</div>
-            <div class="px-1 py-0.5 border-b border-gray-300">{{ $user->email ?? 'N/A' }}</div>
+            <div class="px-1 py-0.5 border-b border-gray-300 break-words whitespace-normal">{{ $user->email ?? 'N/A' }}</div>
             <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Contact Number:</div>
-            <div class="px-1 py-0.5 border-b border-gray-300">{{ $user->contact_number ?? 'N/A' }}</div>
+            <div class="px-1 py-0.5 border-b border-gray-300 break-words whitespace-normal">{{ $user->contact_number ?? 'N/A' }}</div>
             <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">SSS No.:</div>
-            <div class="px-1 py-0.5 border-b border-gray-300">{{ $user->sss_number ?? 'N/A' }}</div>
+            <div class="px-1 py-0.5 border-b border-gray-300 break-words whitespace-normal">{{ $user->sss_number ?? 'N/A' }}</div>
             <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Philhealth No.:</div>
-            <div class="px-1 py-0.5 border-b border-gray-300">{{ $user->philhealth_number ?? 'N/A' }}</div>
+            <div class="px-1 py-0.5 border-b border-gray-300 break-words whitespace-normal">{{ $user->philhealth_number ?? 'N/A' }}</div>
             <div class="bg-gray-100 px-1 py-0.5 border-b border-gray-300">Pag-IBIG No.:</div>
-            <div class="px-1 py-0.5 border-b border-gray-300">{{ $user->pagibig_number ?? 'N/A' }}</div>
+            <div class="px-1 py-0.5 border-b border-gray-300 break-words whitespace-normal">{{ $user->pagibig_number ?? 'N/A' }}</div>
           </div>
           <!-- Salary Info -->
           <div class="grid grid-cols-2 border border-gray-200 text-xs w-full md:w-1/4">
@@ -163,17 +163,17 @@
         <!-- Signatures -->
         <div class="grid grid-cols-3 mt-2 text-center text-xs gap-1">
           <div class="flex flex-col items-center">
-            <img src="{{ asset('images/signature.png') }}" class="h-6 mb-0">
+            <img src="" class="h-10 mb-0">
             <span class="font-bold underline uppercase">{{ $user->name ?? 'N/A' }}</span>
             <span>Employee Overprinted Name</span>
           </div>
           <div class="flex flex-col items-center">
-            <img src="{{ asset('images/signature.png') }}" class="h-6 mb-0">
+            <img src="{{ asset('images/signature.png') }}" class="h-10 mb-0">
             <span class="font-bold underline">SUE LAPIDEZ</span>
             <span>Prepared By</span>
           </div>
           <div class="flex flex-col items-center">
-            <img src="{{ asset('images/signature.png') }}" class="h-6 mb-0">
+            <img src="{{ asset('images/signature.png') }}" class="h-10 mb-0">
             <span class="font-bold underline">MICHAEL LAPIDEZ</span>
             <span>Employer Overprinted Name</span>
           </div>
