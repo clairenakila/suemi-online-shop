@@ -10,6 +10,8 @@ use Spatie\Permission\Traits\HasRoles;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use App\Models\Item;
+
 
 
 
@@ -27,6 +29,7 @@ class User extends Authenticatable
         'role_id',
         'name',
         'email',
+        'plain_password',
         'password',
         'contact_number',
         'sss_number',
@@ -34,7 +37,9 @@ class User extends Authenticatable
         'philhealth_number',
         'hourly_rate',
         'daily_rate',
-        'signature'
+        'signature',
+        'is_live_seller',
+        'is_employee',
 
     ];
 
@@ -67,5 +72,9 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+     public function item()
+    {
+        return $this->hasMany(Item::class, 'user_id');
     }
 }

@@ -18,6 +18,8 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
+use Filament\Tables\Enums\ActionsPosition;
+
 
 class RoleResource extends Resource implements HasShieldPermissions
 {
@@ -114,14 +116,16 @@ class RoleResource extends Resource implements HasShieldPermissions
                     ->label(__('filament-shield::filament-shield.column.updated_at'))
                     ->dateTime(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                ->slideOver(),
-                Tables\Actions\DeleteAction::make(),
-            ])
+                ->label('')
+                 ->slideOver(),
+                // Tables\Actions\DeleteAction::make(),
+            ], position: ActionsPosition::BeforeCells) 
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
@@ -138,9 +142,9 @@ class RoleResource extends Resource implements HasShieldPermissions
     {
         return [
             'index' => Pages\ListRoles::route('/'),
-            'create' => Pages\CreateRole::route('/create'),
+            // 'create' => Pages\CreateRole::route('/create'),
             'view' => Pages\ViewRole::route('/{record}'),
-            'edit' => Pages\EditRole::route('/{record}/edit'),
+            // 'edit' => Pages\EditRole::route('/{record}/edit'),
         ];
     }
 

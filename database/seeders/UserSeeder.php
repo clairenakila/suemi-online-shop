@@ -29,6 +29,8 @@ class UserSeeder extends Seeder
             'daily_rate'        => 0,
             'signature'         => 'signatures/john-sign.png', // store file path if you want , public/signatures
             'role_id'           =>1,
+            'is_employee'        => 'No',
+            'is_live_seller'        => 'No',
         ]);
 
         User::create([
@@ -43,6 +45,8 @@ class UserSeeder extends Seeder
             'daily_rate'        => 0,
             'signature'         => 'signatures/john-sign.png', // store file path if you want , public/signatures
             'role_id'           =>1,
+            'is_employee'        => 'No',
+            'is_live_seller'        => 'No',
         ]);
     }
 }
