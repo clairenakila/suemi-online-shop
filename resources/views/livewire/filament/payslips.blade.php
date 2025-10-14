@@ -41,8 +41,19 @@
           </span>
 
           </p>
-          <p class="font-semibold text-red-600"><span>Deductions:</span> - ₱100</p>
-          <p class="font-bold text-lg"><span>Net Pay:</span> ₱100</p>
+          <p class="font-semibold text-red-600">
+          Deductions: ₱<span id="totalDeductionTop{{ $i }}">0.00</span>
+          
+          <p class="font-bold text-lg">NET Pay:
+           
+        <span id="netPay{{ $i }}">
+  ₱{{ number_format(
+    (($totalDays * ($user->daily_rate ?? 0)) + 
+    ($totalHours * ($user->hourly_rate ?? 0)) + 
+    ($totalCommission ?? 0)) - 0, 2
+  ) }}
+</span>
+        </p>
         </div>
 
         <!-- Employee & Salary Details -->
@@ -137,10 +148,13 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="border px-1 py-0.5">Cash Advance = ₱100<br>Cellphone = ₱1000</td></tr>
+                  <td id="deductionTable{{ $i }}"  class="border px-1 py-0.5">
+                     N/A
+                </td></tr>
               </tbody>
               <tfoot>
-                <tr class="font-bold"><td class="border px-1 py-0.5">Total Deductions: ₱100</td></tr>
+                <tr class="font-bold">
+              <td class="border px-1 py-0.5">Total Deductions: ₱<span id="totalDeduction{{ $i }}">0.00</span></td>
               </tfoot>
             </table>
           </div>
@@ -196,7 +210,7 @@
 
   <!-- Floating Add Deduction Button -->
 <button 
-  class="fixed top-16 right-5 bg-blue-500 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-blue-600 transition"
+  class="fixed top-16 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-red-600 transition"
   onclick="showDeductionModal()">
   + Add Deduction
 </button>
@@ -208,12 +222,12 @@
       <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800" onclick="hideDeductionModal()">✕</button>
       <h2 class="text-lg font-bold mb-2">Add Deduction</h2>
       <div class="flex flex-col space-y-2">
-        <input id="deductionDescription" type="text" placeholder="Description" class="border px-2 py-1 rounded" required>
-        <input id="deductionAmount" type="number" placeholder="Amount" class="border px-2 py-1 rounded" required>
+        <input id="description" type="text" placeholder="Description" class="border px-2 py-1 rounded" required>
+        <input id="amount" type="number" placeholder="Amount" class="border px-2 py-1 rounded" required>
       </div>
       <div class="flex justify-end mt-4 space-x-2">
         <button type="button" class="bg-gray-300 px-3 py-1 rounded" onclick="hideDeductionModal()">Cancel</button>
-        <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded">OK</button>
+        <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded">OK</button>
       </div>
     </form>
   </div>
@@ -270,7 +284,6 @@
     }
 
     // start of deduction logic
-
     let deductions = [];
 
   function showDeductionModal() {
@@ -283,43 +296,42 @@
 
   function updateDeductionLists() {
     for (let i = 0; i < 2; i++) { // update both payslips
-      const deductionTable = document.querySelector(`#deductionTable${i}`);
-      if(deductionTable) {
-        deductionTable.innerHTML = deductions.length
-          ? deductions.map(d => `${d.description} = ₱${d.amount.toFixed(2)}`).join('<br>')
-          : 'N/A';
+      const deductionTable = document.getElementById('deductionTable' + i);
+      
+      if (deductions.length) {
+        deductionTable.innerHTML = deductions.map(d =>
+          `${d.description} = ₱${d.amount.toFixed(2)}<br>`
+        ).join('');
+      } else {
+        deductionTable.innerHTML = 'N/A';
       }
 
-      const totalDeduction = deductions.reduce((sum, d) => sum + d.amount, 0);
-      const totalDeductionCell = document.getElementById('totalDeduction' + i);
-      if(totalDeductionCell) totalDeductionCell.innerText = '₱' + totalDeduction.toFixed(2);
+      const totalDed = deductions.reduce((sum, d) => sum + d.amount, 0);
+      document.getElementById('totalDeduction' + i).innerText = totalDed.toFixed(2);
+        document.getElementById('totalDeductionTop' + i).innerText = totalDed.toFixed(2);
 
-      // Recalculate Net Pay
-      const totalDailyPay = {{ $totalDays ?? 0 }} * {{ $user->daily_rate ?? 0 }};
-      const totalOvertimePay = {{ $totalHours ?? 0 }} * {{ $user->hourly_rate ?? 0 }};
-      const totalCommission = commissions.reduce((sum, c) => sum + c.total, 0);
 
-      const grossPay = totalDailyPay + totalOvertimePay + totalCommission;
-      const netPay = grossPay - totalDeduction;
-
-      document.getElementById('grossPay' + i).innerText = '₱' + grossPay.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      document.getElementById('grossPayTable' + i).innerText = '₱' + grossPay.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      document.getElementById('netPay' + i).innerText = '₱' + netPay.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      // Update Net Pay dynamically
+      const grossPay = parseFloat(document.getElementById('grossPay' + i).innerText.replace(/[^0-9.-]+/g, ""));
+      const netPay = grossPay - totalDed;
+      document.getElementById('netPay' + i).innerText = 
+        '₱' + netPay.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
   }
 
   function addDeduction(e) {
     e.preventDefault();
-    const description = document.getElementById('deductionDescription').value;
-    const amount = parseFloat(document.getElementById('deductionAmount').value);
+    const description = document.querySelector('#deductionForm #description').value;
+    const amount = parseFloat(document.querySelector('#deductionForm #amount').value);
 
-    deductions.push({description, amount});
+    deductions.push({ description, amount });
     updateDeductionLists();
 
     document.getElementById('deductionForm').reset();
     hideDeductionModal();
   }
-    
+  
+  
   </script>
 
 </body>
