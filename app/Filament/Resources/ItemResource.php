@@ -47,6 +47,12 @@ class ItemResource extends Resource
                 ->label('Created At')
                 ->default('now')
                 ->readOnly(fn () => ! auth()->user()->hasRole('super_admin')),
+                Forms\Components\Select::make('mined_from')
+                    ->options([
+                        'Shoppee' => 'Shoppee',
+                        'Facebook' => 'Facebook',
+                    ])
+                    ->required(),
                 Forms\Components\Select::make('category_id')
                     ->relationship('category','description')
                     ->default(function () {
@@ -108,6 +114,13 @@ class ItemResource extends Resource
 
                 Forms\Components\DateTimePicker::make('date_returned'),
                 Forms\Components\DateTimePicker::make('date_shipped'),
+                Forms\Components\TextInput::make('discount')
+                    ->numeric()
+                    ->default(0),
+                Forms\Components\TextInput::make('discounted_selling_price')
+                    ->numeric()
+                    ->default(fn (callable $get) => $get('selling_price') ?? 0)
+                    ->hidden(),
 
                 ])
                 ->collapsible()
@@ -131,6 +144,10 @@ class ItemResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('mined_from')
+                    ->label('Mined From')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Prepared By')
                     ->numeric()
@@ -190,6 +207,11 @@ class ItemResource extends Resource
                                 'yes' => 'success',
                                 'no' => 'danger',
                             }),
+                Tables\Columns\TextColumn::make('discount')
+                    ->numeric()
+                    ->summarize(Sum::make()->label('Total Discount')->money('PHP')),
+                Tables\Columns\TextColumn::make('discounted_selling_price')
+                    ->numeric(),
                 Tables\Columns\TextColumn::make('date_returned')
                     ->label('Date Returned')
                     ->dateTime()

@@ -24,6 +24,8 @@ class Item extends Model
         'live_seller',
         'shoppee_commission',
         'total_gross_sale',
+        'discount',
+        'mined_from',
 
     ];
 
@@ -91,6 +93,16 @@ protected static function booted()
 
             // 💡 Total gross sale = selling price minus rounded commission
             $item->total_gross_sale = $item->selling_price - $item->shoppee_commission;
+
+            $item->total_gross_sale = $item->selling_price - $item->shoppee_commission;
+
+            // 💡 Compute discounted selling price (selling price - discount)
+            if ($item->discount !== null) {
+                $item->discounted_selling_price = $item->selling_price - $item->discount;
+            } else {
+                $item->discounted_selling_price = $item->selling_price;
+            }
+
         }
     });
 }

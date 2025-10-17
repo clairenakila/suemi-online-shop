@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('items', function (Blueprint $table) {
             $table->double('discount')->default(0)->nullable()->index("item_discount");
             $table->enum('mined_from', ['Shoppee', 'Facebook'])->default('Shoppee')->index('item_mined_from');
+            $table->double('discounted_selling_price')->default(0)->nullable()->index("item_discounted_selling_price");
 
         });
     }
@@ -24,8 +25,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('items', function (Blueprint $table) {
-             $table->double('discount');
-              $table->enum('mined_from');
+            $table->dropColumn(['discount', 'mined_from','discounted_selling_price']);
+
         });
     }
 };
