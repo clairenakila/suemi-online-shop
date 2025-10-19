@@ -184,6 +184,11 @@ class ItemResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->summarize(Sum::make()->label('Total Selling Price')->money('PHP')),
+                Tables\Columns\TextColumn::make('discount')
+                    ->numeric()
+                    ->summarize(Sum::make()->label('Total Discount')->money('PHP')),
+                Tables\Columns\TextColumn::make('discounted_selling_price')
+                    ->numeric(),
                 Tables\Columns\TextColumn::make('shoppee_commission')
                     ->label('Shoppee Commission')
                     ->numeric()
@@ -207,11 +212,7 @@ class ItemResource extends Resource
                                 'yes' => 'success',
                                 'no' => 'danger',
                             }),
-                Tables\Columns\TextColumn::make('discount')
-                    ->numeric()
-                    ->summarize(Sum::make()->label('Total Discount')->money('PHP')),
-                Tables\Columns\TextColumn::make('discounted_selling_price')
-                    ->numeric(),
+            
                 Tables\Columns\TextColumn::make('date_returned')
                     ->label('Date Returned')
                     ->dateTime()
@@ -337,6 +338,8 @@ class ItemResource extends Resource
                             'date_returned' => 'Date Returned',
                             'date_shipped' => 'Date Shipped',
                             'live_seller' => 'Live Seller',
+                            'mined_from' => 'Mined From',
+                            'discount' => 'Discount',
                            
                         ])
                         ->columns(2)
@@ -405,6 +408,19 @@ class ItemResource extends Resource
                         })
                         ->visible(fn ($get) => in_array('live_seller', $get('fields_to_update') ?? []))
                         ->required(fn ($get) => in_array('live_seller', $get('fields_to_update') ?? [])),
+                    Forms\Components\Select::make('mined_from')
+                        ->label('Mined From')
+                        ->options([
+                            'Shoppee' => 'Shoppee',
+                            'Facebook'  => 'Facebook',
+                        ])
+                        ->visible(fn ($get) => in_array('mined_from', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('mined_from', $get('fields_to_update') ?? [])),
+                    Forms\Components\TextInput::make('discount')
+                        ->label('Discount')
+                       ->numeric()
+                        ->visible(fn ($get) => in_array('discount', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('discount', $get('fields_to_update') ?? [])),
                 ]);
             })
             ->action(function (array $data, $records) {
@@ -446,6 +462,12 @@ class ItemResource extends Resource
                     }
                     if (in_array('live_seller', $data['fields_to_update'])) {
                         $updateData['live_seller'] = $data['live_seller'];
+                    }
+                    if (in_array('mined_from', $data['fields_to_update'])) {
+                        $updateData['mined_from'] = $data['mined_from'];
+                    }
+                    if (in_array('discount', $data['fields_to_update'])) {
+                        $updateData['discount'] = $data['discount'];
                     }
                         $record->timestamps = false;  // 🚨 very important
                             $record->update($updateData);

@@ -88,8 +88,8 @@ protected static function booted()
 {
     static::saving(function ($item) {
         if ($item->selling_price !== null) {
-            // 💡 Compute like Excel: round commission per item
-            $item->shoppee_commission = round($item->selling_price * 0.21);
+
+           
 
             // 💡 Total gross sale = selling price minus rounded commission
             $item->total_gross_sale = $item->selling_price - $item->shoppee_commission;

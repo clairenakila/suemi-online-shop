@@ -53,6 +53,14 @@ class Dashboard extends \Filament\Pages\Dashboard
                         ->pluck('live_seller', 'live_seller'))
                     ->placeholder('All')
                     ->reactive(),
+            Select::make('mined_from')
+                    ->label('Mined From')
+                    ->options(Item::query()
+                        ->select('mined_from')
+                        ->distinct()
+                        ->pluck('mined_from', 'mined_from'))
+                    ->placeholder('All')
+                    ->reactive(),
         ])->columns(3);
     }
 

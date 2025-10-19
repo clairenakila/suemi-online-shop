@@ -32,6 +32,7 @@ class SalesSummary extends BaseWidget
         $end = $this->filters['endDate'] ?? null;
         $userId = $this->filters['user_id'] ?? null;
         $liveSeller = $this->filters['live_seller'] ?? null;
+        $minedFrom = $this->filters['mined_from'] ?? null;
 
 
 
@@ -39,7 +40,8 @@ class SalesSummary extends BaseWidget
             ->when($start, fn($q) => $q->whereDate('created_at', '>=', $start))
             ->when($end, fn($q) => $q->whereDate('created_at', '<=', $end))
             ->when($userId, fn($q) => $q->where('user_id', $userId))
-            ->when($liveSeller, fn($q) => $q->where('live_seller', $liveSeller));
+            ->when($liveSeller, fn($q) => $q->where('live_seller', $liveSeller))
+            ->when($minedFrom, fn($q) => $q->where('mined_from', $minedFrom));
 
 
         // Returned items query (uses date_returned)
@@ -80,31 +82,32 @@ class SalesSummary extends BaseWidget
             //     ->chart([1, 2, 3, 7, 3]),
 
             Stat::make('', $countCleanedItems . ' pcs.')
-                ->description('Count of Cleaned Items')
+                // ->description('Count of Cleaned Items')
+                    ->description('Count of Cleaned Items -> ' . ($minedFrom ?? '(Shoppee & facebook)'))
                 ->color('primary')
                 ->chart([2, 5, 3, 6, 4]),
             Stat::make('',  '₱' . number_format($totalCapital, 2))
-                ->description('Total Capital')
+                ->description('Total Capital ->'. ($minedFrom ?? '(Shoppee & facebook)'))
                 ->color('primary')
                 ->chart([2, 5, 3, 6, 4]),
              Stat::make('',  '₱' . number_format($beforeShoppeeCommission, 2))
-                ->description('Total Sales Before Shoppee Commission')
+                ->description('Total Sales Before Commission ->'. ($minedFrom ?? '(Shoppee & facebook)'))
                 ->color('primary')
                 ->chart([2, 5, 3, 6, 4]),
             Stat::make('',  '₱' . number_format($shoppeeCommission, 2))
-                ->description('Shoppee Commission')
+                ->description('Commission ->'. ($minedFrom ?? '(Shoppee & facebook)'))
                 ->color('primary')
                 ->chart([2, 5, 3, 6, 4]),
             Stat::make('',  '₱' . number_format($afterShoppeeCommission, 2))
-                ->description('Total Sales After Shoppee Commission')
+                ->description('Total Sales After Commission ->' . ($minedFrom ?? '(Shoppee & facebook)'))
                 ->color('primary')
                 ->chart([2, 5, 3, 6, 4]),
             Stat::make('',$rtsCount .' pcs.')
-                ->description('Count of Returned Items')
+                ->description('Count of Returned Items ->'. ($minedFrom ?? '(Shoppee & facebook)'))
                 ->color('danger')
                 ->chart([2, 5, 3, 6, 4]),
             Stat::make('',  '₱' . number_format($rtsAmount))
-                ->description('Total Amount for Returned Items')
+                ->description('Total Amount for Returned Items ->'. ($minedFrom ?? '(Shoppee & facebook)'))
                 ->color('danger')
                 ->chart([2, 5, 3, 6, 4]),
             Stat::make('',  '₱' . number_format($totalSale))
