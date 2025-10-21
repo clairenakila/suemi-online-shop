@@ -23,7 +23,7 @@ class ItemImport implements ToCollection, WithHeadingRow
         $itemsToInsert = [];
 
         foreach ($rows as $row) {
-            // Normalize Excel headers
+            // Normalize headers
             $normalized = [];
             foreach ($row as $key => $value) {
                 $key = strtolower(trim($key));
@@ -32,18 +32,20 @@ class ItemImport implements ToCollection, WithHeadingRow
             }
             $row = $normalized;
 
-            if (empty($row['brand'])) {
+            // Skip rows without order_id or brand
+            if (empty(trim($row['order_id'] ?? '')) || empty(trim($row['brand'] ?? ''))) {
                 continue;
             }
 
+            // Handle category
             $categoryDescription = trim($row['category'] ?? '');
             $category = $categoryDescription
                 ? Category::firstOrCreate(['description' => $categoryDescription], ['description' => $categoryDescription])
                 : null;
 
+            // Handle user
             $userName = trim($row['prepared_by'] ?? '');
-            $user = User::whereRaw('LOWER(TRIM(name)) = ?', [strtolower(trim($userName))])->first();
-
+            $user = User::whereRaw('LOWER(TRIM(name)) = ?', [strtolower($userName)])->first();
             if (!$user && $userName !== '') {
                 $missingUsers[] = $userName;
             }
@@ -63,23 +65,40 @@ class ItemImport implements ToCollection, WithHeadingRow
                 return null;
             };
 
+            // Numeric fields
+            $sellingPrice = isset($row['selling_price']) ? floatval(str_replace(',', '', $row['selling_price'])) : 0;
+            $shoppeeCommission = isset($row['shoppee_commission']) && $row['shoppee_commission'] !== ''
+                ? floatval(str_replace(',', '', $row['shoppee_commission']))
+                : 0; // default 0 to avoid NOT NULL error
+            $discount = isset($row['discount']) ? floatval(str_replace(',', '', $row['discount'])) : 0;
+            $capital = isset($row['capital']) ? floatval(str_replace(',', '', $row['capital'])) : 0;
+            $quantity = isset($row['quantity']) ? floatval(str_replace(',', '', $row['quantity'])) : 0;
+
             $itemsToInsert[] = [
-                'created_at'    => $convertDate($row['timestamp'] ?? null),
-                'brand'         => $row['brand'] ?? null,
-                'order_id'      => $row['order_id'] ?? null,
-                'category_id'   => $category ? $category->id : null,
-                'user_id'       => $user ? $user->id : null,
-                'quantity'      => $row['quantity'] ?? null,
-                'capital'       => $row['capital'] ?? null,
-                'selling_price' => $row['selling_price'] ?? null,
-                'is_returned'   => $row['is_returned'] ?? 'No',
-                'date_returned' => $convertDate($row['date_returned'] ?? null),
-                'date_shipped'  => $convertDate($row['date_shipped'] ?? null),
-                'live_seller'   => $row['live_seller'] ?? null,
+                'created_at'              => $convertDate($row['timestamp'] ?? null),
+                'brand'                   => $row['brand'] ?? null,
+                'order_id'                => $row['order_id'],
+                'category_id'             => $category ? $category->id : null,
+                'user_id'                 => $user ? $user->id : null,
+                'quantity'                => $quantity,
+                'capital'                 => $capital,
+                'selling_price'           => $sellingPrice,
+                'is_returned'             => $row['is_returned'] ?? 'No',
+                'date_returned'           => $convertDate($row['date_returned'] ?? null),
+                'date_shipped'            => $convertDate($row['date_shipped'] ?? null),
+                'live_seller'             => $row['live_seller'] ?? null,
+                'shoppee_commission'      => $shoppeeCommission,
+                'discount'                => $discount,
+                'mined_from'              => $row['mined_from'] ?? null,
+
+                // Computed fields
+                'commission_rate'          => $sellingPrice > 0 ? round($shoppeeCommission / $sellingPrice * 100, 2) : 0,
+                'total_gross_sale'         => $sellingPrice - $shoppeeCommission,
+                'discounted_selling_price' => $sellingPrice - $discount,
             ];
         }
 
-        // ❌ Stop if any user names were not found
+        // Stop if any users missing
         if (!empty($missingUsers)) {
             $list = implode(', ', array_unique($missingUsers));
 
@@ -92,7 +111,7 @@ class ItemImport implements ToCollection, WithHeadingRow
             throw new Exception("Import cancelled: Walang account sina: -> {$list}");
         }
 
-        // ✅ Only save if all users exist
+        // Save items
         foreach ($itemsToInsert as $data) {
             Item::create($data);
         }

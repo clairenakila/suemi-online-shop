@@ -26,6 +26,7 @@ class Item extends Model
         'total_gross_sale',
         'discount',
         'mined_from',
+        'commission_rate',
 
     ];
 
@@ -88,6 +89,11 @@ protected static function booted()
 {
     static::saving(function ($item) {
         if ($item->selling_price !== null) {
+
+            //Calculate commission_rate safely without changing existing code
+            $item->commission_rate = $item->selling_price > 0
+                ? round(($item->shoppee_commission ?? 0) / $item->selling_price * 100, 2)
+                : 0;
 
            
 

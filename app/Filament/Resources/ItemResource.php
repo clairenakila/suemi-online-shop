@@ -95,8 +95,7 @@ class ItemResource extends Resource
                     ->placeholder('Enter the selling price'),
 
                 Forms\Components\TextInput::make('shoppee_commission')
-                    ->numeric()
-                    ->hidden(),
+                    ->numeric(),
                 Forms\Components\TextInput::make('total_gross_sale')
                     ->numeric()
                     ->hidden(),
@@ -184,18 +183,23 @@ class ItemResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->summarize(Sum::make()->label('Total Selling Price')->money('PHP')),
-                Tables\Columns\TextColumn::make('discount')
-                    ->numeric()
-                    ->summarize(Sum::make()->label('Total Discount')->money('PHP')),
-                Tables\Columns\TextColumn::make('discounted_selling_price')
-                    ->numeric(),
+                
                 Tables\Columns\TextColumn::make('shoppee_commission')
                     ->label('Shoppee Commission')
                     ->numeric()
                     ->searchable()
                     ->sortable()
                     ->summarize(Sum::make()->label('Total Shoppee Commission (21%)')->money('PHP')),
-                
+                 Tables\Columns\TextColumn::make('commission_rate')
+                    ->label('Commission Rate (%)')
+                    ->numeric()
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('discount')
+                    ->numeric()
+                    ->summarize(Sum::make()->label('Total Discount')->money('PHP')),
+                Tables\Columns\TextColumn::make('discounted_selling_price')
+                    ->numeric(),
                     
                 Tables\Columns\TextColumn::make('total_gross_sale')
                     ->label('Total Gross Sale')
@@ -340,6 +344,8 @@ class ItemResource extends Resource
                             'live_seller' => 'Live Seller',
                             'mined_from' => 'Mined From',
                             'discount' => 'Discount',
+                            'shoppee_commission' => 'Shoppee Commission',
+
                            
                         ])
                         ->columns(2)
@@ -421,6 +427,11 @@ class ItemResource extends Resource
                        ->numeric()
                         ->visible(fn ($get) => in_array('discount', $get('fields_to_update') ?? []))
                         ->required(fn ($get) => in_array('discount', $get('fields_to_update') ?? [])),
+                    Forms\Components\TextInput::make('shoppee_commission')
+                        ->label('Shoppee Commission')
+                        ->integer()
+                        ->visible(fn ($get) => in_array('shoppee_commission', $get('fields_to_update') ?? []))
+                        ->required(fn ($get) => in_array('shoppee_commission', $get('fields_to_update') ?? [])),
                 ]);
             })
             ->action(function (array $data, $records) {
@@ -468,6 +479,9 @@ class ItemResource extends Resource
                     }
                     if (in_array('discount', $data['fields_to_update'])) {
                         $updateData['discount'] = $data['discount'];
+                    }
+                    if (in_array('shoppee_commission', $data['fields_to_update'])) {
+                        $updateData['shoppee_commission'] = $data['shoppee_commission'];
                     }
                         $record->timestamps = false;  // 🚨 very important
                             $record->update($updateData);
