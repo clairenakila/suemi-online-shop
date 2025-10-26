@@ -8,6 +8,7 @@ use Filament\Pages\Dashboard\Actions\FilterAction;
 use Filament\Pages\Dashboard\Concerns\HasFiltersAction;
 use Filament\Forms\Components\Section;
 use App\Filament\Widgets\SalesSummary;
+use App\Filament\Widgets\QuantityPerPreparedByTable;
 use App\Models\User;
 use App\Models\Item;
 use Filament\Forms\Components\Select;
@@ -88,6 +89,8 @@ class Dashboard extends \Filament\Pages\Dashboard
     {
         return [
             SalesSummary::class,  
+            QuantityPerPreparedByTable::class,  
+
           
         ];
     }
