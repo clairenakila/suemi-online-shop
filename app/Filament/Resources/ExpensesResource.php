@@ -46,7 +46,7 @@ class ExpensesResource extends Resource
 
                     ]),
                 Forms\Components\TextInput::make('amount')
-                    ->integer()    
+                    ->step('0.01')                 
                     ->required(),
             ]);
     }

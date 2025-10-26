@@ -40,6 +40,8 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => '#fe3298',
                 'secondary' => '#E90074',
+                'violet' => '#7f00ff',
+
                 // #f43f5e
             ])
             ->passwordReset()

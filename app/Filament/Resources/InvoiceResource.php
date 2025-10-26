@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Columns\Summarizers\Sum;
+
 
 
 class InvoiceResource extends Resource
@@ -152,7 +154,9 @@ class InvoiceResource extends Resource
                 Tables\Columns\TextColumn::make('net_pay')
                     ->label('Net Pay')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(Sum::make()->label('Total Salaries')->money('PHP')),
+
             ])
             ->defaultSort('created_at','desc')
             ->filters([
