@@ -16,6 +16,8 @@ class QuantityPerPreparedByTable extends BaseWidget
 
     protected static ?string $heading = 'Quantity per Prepared By';
     protected int|string|array $columnSpan = 'full';
+    protected static bool $isLazy = false;
+
 
     public function table(Table $table): Table
     {
