@@ -63,12 +63,20 @@ class Attendance extends Model
 
                 case 'Overtime':
                     $attendance->total_days = 0;
+
                     if ($attendance->time_in && $attendance->time_out) {
                         $timeIn = Carbon::parse($attendance->time_in);
                         $timeOut = Carbon::parse($attendance->time_out);
+
+                        // If time_out is the next day (1AM, 2AM, etc.)
+                        if ($timeOut->lessThan($timeIn)) {
+                            $timeOut->addDay();
+                        }
+
                         $attendance->total_hours = $timeIn->diffInHours($timeOut);
                     }
                     break;
+
 
                 case 'Absent':
                     $attendance->total_days = 0;
