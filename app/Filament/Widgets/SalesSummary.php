@@ -97,7 +97,7 @@ class SalesSummary extends BaseWidget
             ->sum('net_pay');
 
         // ✅ Final total sales after deductions
-        $totalSale = $afterShoppeeCommission 
+        $totalSale = $beforeShoppeeCommission 
                     - $shoppeeCommission 
                     - $rtsAmount 
                     - $totalExpenses 
