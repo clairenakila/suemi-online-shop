@@ -169,12 +169,14 @@
             <span>Employee Overprinted Name</span>
           </div>
           <div class="flex flex-col items-center">
-            <img src="{{ asset('images/sue_signature.png') }}" class="h-10 mb-0">
+            <img class="h-10 mb-0">
             <span class="font-bold underline">SUE LAPIDEZ</span>
             <span>Prepared By</span>
           </div>
           <div class="flex flex-col items-center">
-            <img src="{{ asset('images/michael_signature.png') }}" class="h-10 mb-0">
+          <!-- <img src="{{ asset('images/michael_signature.png') }}" class="h-10 mb-0"> -->
+
+            <img  class="h-10 mb-0">
             <span class="font-bold underline">MICHAEL LAPIDEZ</span>
             <span>Employer Overprinted Name</span>
           </div>
