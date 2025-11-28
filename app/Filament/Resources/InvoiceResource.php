@@ -26,7 +26,7 @@ class InvoiceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-newspaper';
     protected static ?string $navigationGroup = 'Payroll Management';
-    protected static ?string $navigationLabel = 'Invoices';
+    protected static ?string $navigationLabel = 'Payslips History';
     protected static bool $isLazy = false;
     public static function getNavigationBadge(): ?string
     {
@@ -183,6 +183,14 @@ class InvoiceResource extends Resource
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
+                // Tables\Actions\ViewAction::make('View')
+                //     ->label('View Invoice')
+                //     ->url(fn ($record) => route('invoice.view', [
+                //         'user_id'    => $record->user_id,
+                //         'start_date' => $record->start_date,
+                //         'end_date'   => $record->end_date,
+                //     ]))
+                //     ->openUrlInNewTab(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
