@@ -109,6 +109,12 @@
                   <td colspan="4" class="border px-1 py-0.5">
                     Total Daily Pay = {{ $user->daily_rate !== null ? '₱' . number_format($totalDays * $user->daily_rate, 2) : 'N/A' }}<br>
                     Total Overtime Pay = {{ $user->hourly_rate !== null ? '₱' . number_format($totalHours * $user->hourly_rate, 2) : 'N/A' }}<br>
+                   
+                    Bonus/Holiday:
+                    <div id="bonusList{{ $i }}" class="ml-5">N/A</div>
+                    Total Bonus/Holiday: ₱<span id="totalBonus{{ $i }}">0.00</span>
+                    <br>
+
                     Commission:
                     <div id="commissionList{{ $i }}" class=" ml-5">
                     @if(count($commissions) > 0)
@@ -185,12 +191,42 @@
     @endfor
   <!-- </div> -->
 
+
+
+
   <!-- Floating Add Commission Button -->
   <button 
     class="fixed top-5 right-5 bg-amber-500 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-amber-300 transition"
     onclick="showCommissionModal()">
     + Add Commission
   </button>
+
+  <button 
+  class="fixed bottom-30 right-5 bg-green-600 text-white px-4 py-2 rounded shadow-lg z-50 hover:bg-green-400 transition"
+  onclick="showBonusModal()">
+  + Add Bonus
+</button>
+
+
+  <!-- Bonus Modal -->
+<div id="bonusModal" class="fixed inset-0 bg-white bg-opacity-10 hidden z-50">
+  <div class="flex justify-center items-center h-full">
+    <form id="bonusForm" class="bg-white w-full max-w-md p-4 rounded shadow-lg relative" onsubmit="addBonus(event)">
+      <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800" onclick="hideBonusModal()">✕</button>
+      <h2 class="text-lg font-bold mb-2">Add Bonus</h2>
+
+      <div class="flex flex-col space-y-2">
+        <input id="bonusDescription" type="text" placeholder="Bonus Description" class="border px-2 py-1 rounded" required>
+        <input id="bonusAmount" type="number" placeholder="Amount" class="border px-2 py-1 rounded" required>
+      </div>
+
+      <div class="flex justify-end mt-4 space-x-2">
+        <button type="button" class="bg-gray-300 px-3 py-1 rounded" onclick="hideBonusModal()">Cancel</button>
+        <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded">OK</button>
+      </div>
+    </form>
+  </div>
+</div>
 
   <!-- Commission Modal -->
   <div id="commissionModal" class="fixed inset-0 bg-white bg-opacity-10 hidden z-50">
@@ -461,287 +497,248 @@
   // ======================
 // COMMISSION + DEDUCTION LOGIC WITH SMART RESET
 // ======================
+
+/* =========================================================
+   STATE
+========================================================= */
+let bonuses = [];
 let commissions = [];
 let deductions = [];
 
-// 🧠 Load saved data on refresh
+/* =========================================================
+   BASE PAY (FROM LARAVEL)
+========================================================= */
+const totalDailyPay   = {{ $totalDays ?? 0 }} * {{ $user->daily_rate ?? 0 }};
+const totalOvertimePay = {{ $totalHours ?? 0 }} * {{ $user->hourly_rate ?? 0 }};
+
+/* =========================================================
+   LOAD & SAVE (LOCAL STORAGE)
+========================================================= */
 window.addEventListener('load', () => {
-  const savedCommissions = localStorage.getItem('payslip_commissions');
-  const savedDeductions = localStorage.getItem('payslip_deductions');
-
-  if (savedCommissions) commissions = JSON.parse(savedCommissions);
-  if (savedDeductions) deductions = JSON.parse(savedDeductions);
-
+  bonuses     = JSON.parse(localStorage.getItem('payslip_bonuses')) || [];
+  commissions = JSON.parse(localStorage.getItem('payslip_commissions')) || [];
+  deductions  = JSON.parse(localStorage.getItem('payslip_deductions')) || [];
   updateAll();
 });
 
-// 🧹 Clear data when leaving payslip page (back to attendances or other pages)
-window.addEventListener('beforeunload', (event) => {
-  const nextUrl = document.activeElement?.href || '';
-  const isNavigatingAway =
-    nextUrl.includes('/attendances') || nextUrl.includes('/suemionlineshop');
-
-  // ✅ Clear ONLY if going back to attendance or another page
-  if (isNavigatingAway) {
-    localStorage.removeItem('payslip_commissions');
-    localStorage.removeItem('payslip_deductions');
-  }
-});
-
-
-  function showCommissionModal() {
-    document.getElementById('commissionModal').classList.remove('hidden');
-  }
-
-  function hideCommissionModal() {
-    document.getElementById('commissionModal').classList.add('hidden');
-  }
-
-  function showDeductionModal() {
-    document.getElementById('deductionModal').classList.remove('hidden');
-  }
-
-  function hideDeductionModal() {
-    document.getElementById('deductionModal').classList.add('hidden');
-  }
-
-  // Shared computation for daily/overtime
-  const totalDailyPay = {{ $totalDays ?? 0 }} * {{ $user->daily_rate ?? 0 }};
-  const totalOvertimePay = {{ $totalHours ?? 0 }} * {{ $user->hourly_rate ?? 0 }};
-
-  // ======================
-  // Update All Displays
-  // ======================
-  function updateAll() {
-    let totalCom = commissions.reduce((sum, c) => sum + c.total, 0);
-    let totalDed = deductions.reduce((sum, d) => sum + d.amount, 0);
-    const grossPay = totalDailyPay + totalOvertimePay + totalCom;
-    const netPay = grossPay - totalDed;
-
-    // 💾 Save to localStorage every update
-    localStorage.setItem('payslip_commissions', JSON.stringify(commissions));
-    localStorage.setItem('payslip_deductions', JSON.stringify(deductions));
-
-    for (let i = 0; i < 2; i++) {
-      // Update commission list
-      const list = document.getElementById('commissionList' + i);
-      list.innerHTML = commissions.length
-        ? commissions.map(c =>
-            `${c.quantity} pcs. ${c.description} x ₱${c.price.toFixed(2)} each = ₱${c.total.toFixed(2)}<br>`
-          ).join('')
-        : 'N/A';
-      document.getElementById('totalCommission' + i).innerText = totalCom.toFixed(2);
-
-      // Update gross pay (top and table)
-      document.getElementById('grossPay' + i).innerText =
-        '₱' + grossPay.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-      document.getElementById('grossPayTable' + i).innerText =
-        '₱' + grossPay.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-
-      // Update deductions table
-      const deductionTable = document.getElementById('deductionTable' + i);
-      deductionTable.innerHTML = deductions.length
-        ? deductions.map(d => `${d.description} = ₱${d.amount.toFixed(2)}<br>`).join('')
-        : 'N/A';
-
-      // Update total deductions (top and bottom)
-      document.getElementById('totalDeduction' + i).innerText = totalDed.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      document.getElementById('totalDeductionTop' + i).innerText = totalDed.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-      // Update net pay dynamically
-      document.getElementById('netPay' + i).innerText =
-        '₱' + netPay.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-    }
-  }
-
-  // ======================
-  // Add Commission
-  // ======================
-  function addCommission(e) {
-    e.preventDefault();
-    const description = document.getElementById('description').value;
-    const quantity = parseFloat(document.getElementById('quantity').value);
-    const price = parseFloat(document.getElementById('price').value);
-    const total = quantity * price;
-
-    commissions.push({ description, quantity, price, total });
-    updateAll();
-
-    document.getElementById('commissionForm').reset();
-    hideCommissionModal();
-  }
-
-  // ======================
-  // Add Deduction
-  // ======================
-  function addDeduction(e) {
-    e.preventDefault();
-    const description = document.querySelector('#deductionForm #description').value;
-    const amount = parseFloat(document.querySelector('#deductionForm #amount').value);
-
-    deductions.push({ description, amount });
-    updateAll();
-
-    document.getElementById('deductionForm').reset();
-    hideDeductionModal();
-  }
-
- // ======================
-// PRINT PAYSLIP (NO INVOICE CREATION)
-// ======================
-async function handlePrintPayslip() {
-  // Hide all floating buttons before printing
-  document.querySelectorAll(
-    'button[onclick="showCommissionModal()"], \
-     button[onclick="showDeductionModal()"], \
-     #printButton, \
-     button[onclick="resetPayslipData()"], \
-     #createInvoiceButton'
-  ).forEach(btn => btn.classList.add('hidden'));
-
-  // Compute totals (optional for console/debug)
-  const totalDailyPay = {{ $totalDays ?? 0 }} * {{ $user->daily_rate ?? 0 }};
-  const totalOvertimePay = {{ $totalHours ?? 0 }} * {{ $user->hourly_rate ?? 0 }};
-  const totalCommission = commissions.reduce((sum, c) => sum + c.total, 0);
-  const totalDeduction = deductions.reduce((sum, d) => sum + d.amount, 0);
-  const grossPay = totalDailyPay + totalOvertimePay + totalCommission;
-  const netPay = grossPay - totalDeduction;
-
-  console.log("🖨 Printing payslip...");
-  console.log({ totalDailyPay, totalOvertimePay, totalCommission, totalDeduction, grossPay, netPay });
-
-  // Print
-  setTimeout(() => {
-    window.print();
-  }, 300);
+function persist() {
+  localStorage.setItem('payslip_bonuses', JSON.stringify(bonuses));
+  localStorage.setItem('payslip_commissions', JSON.stringify(commissions));
+  localStorage.setItem('payslip_deductions', JSON.stringify(deductions));
 }
 
-// When print is done (or canceled), re-show all buttons
-window.onafterprint = () => {
-  document.querySelectorAll(
-    'button[onclick="showCommissionModal()"], \
-     button[onclick="showDeductionModal()"], \
-     #printButton, \
-     button[onclick="resetPayslipData()"], \
-     #createInvoiceButton'
-  ).forEach(btn => btn.classList.remove('hidden'));
+/* =========================================================
+   MODAL HELPERS
+========================================================= */
+const show = id => document.getElementById(id).classList.remove('hidden');
+const hide = id => document.getElementById(id).classList.add('hidden');
 
-  // Auto-download as PDF after printing
+function showBonusModal()      { show('bonusModal'); }
+function hideBonusModal()      { hide('bonusModal'); }
+function showCommissionModal() { show('commissionModal'); }
+function hideCommissionModal() { hide('commissionModal'); }
+function showDeductionModal()  { show('deductionModal'); }
+function hideDeductionModal()  { hide('deductionModal'); }
+
+/* =========================================================
+   CORE CALCULATION + UI UPDATE
+========================================================= */
+function updateAll() {
+  const totalBonus = bonuses.reduce((s, b) => s + b.amount, 0);
+  const totalCom   = commissions.reduce((s, c) => s + c.total, 0);
+  const totalDed   = deductions.reduce((s, d) => s + d.amount, 0);
+
+  const grossPay = totalDailyPay + totalOvertimePay + totalBonus + totalCom;
+  const netPay   = grossPay - totalDed;
+
+  persist();
+
+  for (let i = 0; i < 2; i++) {
+
+    /* BONUS */
+    document.getElementById(`bonusList${i}`).innerHTML =
+      bonuses.length
+        ? bonuses.map(b => `${b.description} = ₱${b.amount.toFixed(2)}<br>`).join('')
+        : 'N/A';
+    document.getElementById(`totalBonus${i}`).innerText = totalBonus.toFixed(2);
+
+    /* COMMISSION */
+    document.getElementById(`commissionList${i}`).innerHTML =
+      commissions.length
+        ? commissions.map(c =>
+            `${c.quantity} pcs. ${c.description} × ₱${c.price.toFixed(2)} = ₱${c.total.toFixed(2)}<br>`
+          ).join('')
+        : 'N/A';
+    document.getElementById(`totalCommission${i}`).innerText = totalCom.toFixed(2);
+
+    /* DEDUCTIONS */
+    document.getElementById(`deductionTable${i}`).innerHTML =
+      deductions.length
+        ? deductions.map(d => `${d.description} = ₱${d.amount.toFixed(2)}<br>`).join('')
+        : 'N/A';
+    document.getElementById(`totalDeduction${i}`).innerText =
+    document.getElementById(`totalDeductionTop${i}`).innerText =
+      totalDed.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+
+    /* GROSS & NET */
+    document.getElementById(`grossPay${i}`).innerText =
+    document.getElementById(`grossPayTable${i}`).innerText =
+      '₱' + grossPay.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+
+    document.getElementById(`netPay${i}`).innerText =
+      '₱' + netPay.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+  }
+}
+
+/* =========================================================
+   ADDERS
+========================================================= */
+function addBonus(e) {
+  e.preventDefault();
+  bonuses.push({
+    description: bonusDescription.value,
+    amount: parseFloat(bonusAmount.value)
+  });
+  bonusForm.reset();
+  hideBonusModal();
+  updateAll();
+}
+
+// function addCommission(e) {
+//   e.preventDefault();
+//   const qty = parseFloat(quantity.value);
+//   const price = parseFloat(priceInput.value || price.value);
+
+//   commissions.push({
+//     description: description.value,
+//     quantity: qty,
+//     price,
+//     total: qty * price
+//   });
+
+//   commissionForm.reset();
+//   hideCommissionModal();
+//   updateAll();
+// }
+
+function addCommission(e) {
+  e.preventDefault();
+
+  // get the inputs properly
+  const desc = document.getElementById('description').value;
+  const qty  = parseFloat(document.getElementById('quantity').value);
+  const price = parseFloat(document.getElementById('price').value);
+  const total = qty * price;
+
+  commissions.push({ description: desc, quantity: qty, price, total });
+
+  // reset form & hide modal
+  document.getElementById('commissionForm').reset();
+  hideCommissionModal();
+
+  // update UI
+  updateAll();
+}
+
+
+function addDeduction(e) {
+  e.preventDefault();
+  deductions.push({
+    description: deductionForm.querySelector('#description').value,
+    amount: parseFloat(deductionForm.querySelector('#amount').value)
+  });
+  deductionForm.reset();
+  hideDeductionModal();
+  updateAll();
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+function resetPayslipData() {
+  if (!confirm('Reset all bonuses, commissions, and deductions?')) return;
+  bonuses = commissions = deductions = [];
+  localStorage.clear();
+  updateAll();
+  alert('✅ Payslip reset');
+}
+
+/* =========================================================
+   PRINT & PDF
+========================================================= */
+function handlePrintPayslip() {
+  document.querySelectorAll('button').forEach(b => b.classList.add('hidden'));
+  setTimeout(() => window.print(), 300);
+}
+
+window.onafterprint = () => {
+  document.querySelectorAll('button').forEach(b => b.classList.remove('hidden'));
   downloadPayslipAsPDF();
 };
 
-// ======================
-// AUTO-DOWNLOAD AS PDF
-// ======================
 function downloadPayslipAsPDF() {
-  const employeeName = "{{ str_replace(' ', '_', $user->name ?? 'Employee') }}";
+  const employee = "{{ str_replace(' ', '_', $user->name ?? 'Employee') }}";
   const start = "{{ \Carbon\Carbon::parse($startDate)->format('M_d_Y') }}";
-  const end = "{{ \Carbon\Carbon::parse($endDate)->format('M_d_Y') }}";
-  const fileName = `${employeeName}_(${start}_-_ ${end}).pdf`;
+  const end   = "{{ \Carbon\Carbon::parse($endDate)->format('M_d_Y') }}";
 
-  const element = document.body;
-  const opt = {
+  html2pdf().from(document.body).set({
     margin: 0.2,
-    filename: fileName,
-    image: { type: 'jpeg', quality: 0.98 },
+    filename: `${employee}_(${start}-${end}).pdf`,
     html2canvas: { scale: 2 },
     jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-  };
-
-  html2pdf().from(element).set(opt).save();
+  }).save();
 }
 
-// ======================
-// CTRL + P SHORTCUT
-// ======================
-window.addEventListener('keydown', function(e) {
+/* =========================================================
+   CTRL + P
+========================================================= */
+window.addEventListener('keydown', e => {
   if (e.ctrlKey && e.key.toLowerCase() === 'p') {
-    e.preventDefault(); // prevent default browser print
+    e.preventDefault();
     handlePrintPayslip();
   }
 });
 
-
-// ======================
-// RESET PAGE BUTTON LOGIC
-// ======================
-function resetPayslipData() {
-  if (confirm("Are you sure you want to reset all commissions and deductions?")) {
-    commissions = [];
-    deductions = [];
-    localStorage.removeItem('payslip_commissions');
-    localStorage.removeItem('payslip_deductions');
-    updateAll();
-    alert("✅ Page has been reset!");
-  }
-}
-
-
-// ======================
-// CREATE INVOICE BUTTON LOGIC
-// ======================
+/* =========================================================
+   CREATE INVOICE
+========================================================= */
 async function handleCreateInvoice() {
-  // Compute all totals
-  const totalDailyPay = {{ $totalDays ?? 0 }} * {{ $user->daily_rate ?? 0 }};
-  const totalOvertimePay = {{ $totalHours ?? 0 }} * {{ $user->hourly_rate ?? 0 }};
-  const totalCommission = commissions.reduce((sum, c) => sum + c.total, 0);
-  
-  // 🧾 Concatenate commission descriptions with (Quantity: , Price:)
-  const commissionDescriptions = commissions
-    .map(c => `${c.description} (Quantity: ${c.quantity}, Price: ₱${c.price.toFixed(2)})`)
-    .join(', ');
+  const totalBonus = bonuses.reduce((s,b)=>s+b.amount,0);
+  const totalCom   = commissions.reduce((s,c)=>s+c.total,0);
+  const totalDed   = deductions.reduce((s,d)=>s+d.amount,0);
 
-  const commissionQuantity = commissions.reduce((sum, c) => sum + c.quantity, 0);
+  const grossPay = totalDailyPay + totalOvertimePay + totalBonus + totalCom;
+  const netPay   = grossPay - totalDed;
 
-  const totalDeduction = deductions.reduce((sum, d) => sum + d.amount, 0);
+  await fetch("{{ route('invoices.create') }}", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRF-TOKEN": "{{ csrf_token() }}"
+    },
+    body: JSON.stringify({
+      user_id: {{ $user->id }},
+      start_date: "{{ $startDate }}",
+      end_date: "{{ $endDate }}",
+      total_days: {{ $totalDays }},
+      total_hours: {{ $totalHours }},
+      total_daily_pay: totalDailyPay,
+      total_overtime_pay: totalOvertimePay,
+      total_bonus: totalBonus,
+      bonus_descriptions: bonuses.map(b => `${b.description} ₱${b.amount}`).join(', '),
+      total_commission: totalCom,
+      commission_descriptions: commissions.map(c => c.description).join(', '),
+      total_deduction: totalDed,
+      deduction_descriptions: deductions.map(d => d.description).join(', '),
+      gross_pay: grossPay,
+      net_pay: netPay
+    })
+  });
 
-  // 🧾 Concatenate deduction descriptions with (Amount:)
-  const deductionDescriptions = deductions
-    .map(d => `${d.description} (Amount: ₱${d.amount.toFixed(2)})`)
-    .join(', ');
-
-  const grossPay = totalDailyPay + totalOvertimePay + totalCommission;
-  const netPay = grossPay - totalDeduction;
-
-  try {
-    const response = await fetch("{{ route('invoices.create') }}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-TOKEN": "{{ csrf_token() }}",
-      },
-      body: JSON.stringify({
-        user_id: {{ $user->id }},
-        start_date: "{{ $startDate }}",
-        end_date: "{{ $endDate }}",
-        total_days: {{ $totalDays }},
-        total_hours: {{ $totalHours }},
-        total_daily_pay: totalDailyPay,
-        total_overtime_pay: totalOvertimePay,
-        total_commission: totalCommission,
-        commission_descriptions: commissionDescriptions,
-        commission_quantity: commissionQuantity,
-        total_deduction: totalDeduction,
-        deduction_descriptions: deductionDescriptions,
-        gross_pay: grossPay,
-        net_pay: netPay,
-      }),
-    });
-
-    if (response.ok) {
-      alert("✅ Invoice successfully created!");
-    } else {
-      alert("⚠️ Failed to create invoice. Please try again.");
-    }
-  } catch (error) {
-    console.error("❌ Error creating invoice:", error);
-    alert("❌ An error occurred while creating the invoice.");
-  }
+  alert('✅ Invoice created');
 }
-
-
-  
 </script>
+
 
 
 </body>
