@@ -527,7 +527,8 @@ window.addEventListener('beforeunload', (event) => {
       const list = document.getElementById('commissionList' + i);
       list.innerHTML = commissions.length
         ? commissions.map(c =>
-            `${c.quantity} pcs. ${c.description} x ₱${c.price.toFixed(2)} each = ₱${c.total.toFixed(2)}<br>`
+                    // `${c.quantity} pcs. ${c.description} x ₱${c.price.toFixed(2)} each = ₱${c.total.toFixed(2)}<br>`
+            `${c.quantity}  ${c.description} x ₱${c.price.toFixed(2)}  = ₱${c.total.toFixed(2)}<br>`
           ).join('')
         : 'N/A';
       document.getElementById('totalCommission' + i).innerText = totalCom.toFixed(2);

@@ -19,7 +19,7 @@
           <div>
             <h1 class="text-sm md:text-base font-bold text-gray-800">Suemi Online Shop</h1>
             <p class="text-[9px] md:text-xs text-gray-600 leading-tight">
-              BLK 9 L5 Calliandra 2 Phase 2 Greenwoods<br>
+              BLK 9 L5 Calliandra 2 Phase 1 Greenwoods<br>
               Executive Village Paliparan 1 Dasmariñas Cavite<br>
               facebook.com/suemishop | 09151772074
             </p>
